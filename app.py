@@ -1,11 +1,11 @@
-from flask import Flask, render_template
+import tkinter as tk
+from tkinter import messagebox
 
-app = Flask(__name__)
-
-@app.route('/')
-def sessions():
-    return render_template('index.html')
+def display_message():
+    messagebox.showinfo("Message", "Hello this is a local application")
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+app = tk.Tk()
+app.title("Local Application")
+
+app.mainloop()
