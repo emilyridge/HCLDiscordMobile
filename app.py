@@ -85,6 +85,12 @@ def send_message():
         entry.delete(0, tk.END)
 
 
+WIDTH_IPHONE_15_MAX = 1290
+HEIGHT_IPHONE_15_MAX = 2796
+
+WIDTH_SCREEN = int(WIDTH_IPHONE_15_MAX/4)
+HEIGHT_SCREEN = int(HEIGHT_IPHONE_15_MAX/4)
+
 def display_message():
     messagebox.showinfo("Message", "Hello this is a local application")
 
