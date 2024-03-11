@@ -1,5 +1,6 @@
+from tkinter import messagebox, font, ttk
 import tkinter as tk
-from tkinter import messagebox, font
+
 
 WIDTH_IPHONE_15_MAX = 1290
 HEIGHT_IPHONE_15_MAX = 2796
@@ -35,27 +36,43 @@ def createChatFrame():
     chat_display_width = int(WIDTH_SCREEN / average_char_width)
 
     # Chat display area (Text widget)
-    chat_display = tk.Text(chatFrame, bg="black", fg="white", wrap=tk.WORD, width=chat_display_width)
-    chat_display.grid(row=0, column=0, columnspan=2)
+    chat_display = tk.Text(chatFrame, bg="#31343b", fg="white", wrap=tk.WORD, width=17*2+6, highlightthickness=0, height=38)
+    chat_display.grid(row=0, column=0)
     chat_display.tag_configure("user_message", foreground="white")
 
+
+def on_entry_click(event):
+    if entry.get() == "Message #Channel":
+        entry.delete(0, tk.END)
+        entry.config(foreground="white")
+
+def on_focus_out(event):
+    if not entry.get():
+        entry.insert(0, "Message #Channel")
+        entry.config(foreground="gray")
 
 def createMessageFrame():
     global entry
     # This is where the user will type their message before sending.
     messageFrame = tk.Frame(app)
+    messageFrame.configure(background="#31343b")
     messageFrame.grid(row=2, column=0)
 
-    tk.Label(messageFrame, text="Type your message here!").grid(row=0, column=0)
 
     # Entry widget for user input with a specific font
     entry_font = font.Font(family="Helvetica", size=12)
-    entry = tk.Entry(messageFrame, bg="black", fg="white", font=entry_font)
-    entry.grid(row=1, column=0)
+    entry = tk.Entry(messageFrame, bg="#202427", fg="gray", font=entry_font)
+
+    entry.insert(0, "Message #Channel")
+    entry.grid(row=0, column=0)
+
+    # Bind events to the entry widget
+    entry.bind("<FocusIn>", on_entry_click)
+    entry.bind("<FocusOut>", on_focus_out)
         
     # Button to send messages
     send_button = tk.Button(messageFrame, text="Send", command=send_message)
-    send_button.grid(row=1, column=1)
+    send_button.grid(row=0, column=1)
 
 
 def send_message():
@@ -75,6 +92,9 @@ app = tk.Tk()
 app.title("Discord Mobile Demo")
 
 app.minsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
+
+
+app.configure(background="#31343b")
 
 init_function()
 
