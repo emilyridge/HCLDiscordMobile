@@ -1,0 +1,112 @@
+[
+    {
+        "author" : "Sam",
+        "recipient" : "Bob",
+        "timestamp" : "2024-01-08T10:38:00",
+        "message" : "Bob, how are you doing?"
+    },
+    {
+        "author" : "Bob",
+        "recipient" : "Sam",
+        "timestamp" : "2024-01-08T10:45:00",
+        "message" : "I am doing good, how are you Sam?"
+    },
+    {
+        "author" : "Sam",
+        "recipient" : "Bob",
+        "timestamp" : "2024-01-08T10:50:00",
+        "message" : "I'm doing well, i've been very busy"
+    },
+
+
+
+    {
+        "author" : "Mia",
+        "recipient" : "Emma",
+        "timestamp" : "2024-03-10T11:35:00",
+        "message" : "Emma, have you finished the homework?"
+    },
+    {
+        "author" : "Emma",
+        "recipient" : "Mia",
+        "timestamp" : "2024-03-10T11:48:00",
+        "message" : "I have been working on it, but i'm stuff on problem 4"
+    },
+    {
+        "author" : "Emma",
+        "recipient" : "Mia",
+        "timestamp" : "2024-03-10T11:50:00",
+        "message" : "Have you figured out that problem?"
+    },
+    {
+        "author" : "Mia",
+        "recipient" : "Emma",
+        "timestamp" : "2024-03-10T11:52:00",
+        "message" : "I haven't gotten to problem 4 yet..."
+    },
+    {
+        "author" : "Mia",
+        "recipient" : "Emma",
+        "timestamp" : "2024-03-10T11:59:00",
+        "message" : "Let me know if want to meet up to work on it!"
+    },
+
+
+
+
+
+
+    {
+        "author" : "Noah",
+        "recipient" : "James",
+        "timestamp" : "2024-04-08T10:30:00",
+        "message" : "Are you going on the Denver trip this Summer?"
+    },
+    {
+        "author" : "James",
+        "recipient" : "Noah",
+        "timestamp" : "2024-04-09T10:39:00",
+        "message" : "I think so, I am still trying to book my flight."
+    },
+    {
+        "author" : "James",
+        "recipient" : "Noah",
+        "timestamp" : "2024-04-10T12:30:00",
+        "message" : "What airline are you flying through?"
+    },
+    {
+        "author" : "Noah",
+        "recipient" : "James",
+        "timestamp" : "2024-04-11T12:32:00",
+        "message" : "I am flying with United."
+    },
+
+
+
+
+    {
+        "author" : "Henry",
+        "recipient" : "James",
+        "timestamp" : "2024-02-01T10:30:00",
+        "message" : "Are you going to practice tonight?"
+    },
+    {
+        "author" : "James",
+        "recipient" : "Henry",
+        "timestamp" : "2024-01-01T10:32:00",
+        "message" : "Yes, I'm going to leave in 45 minutes, do you need a ride?"
+    },
+    {
+        "author" : "Henry",
+        "recipient" : "James",
+        "timestamp" : "2024-01-01T10:34:00",
+        "message" : "Sure! If you don't mind"
+    },
+    {
+        "author" : "James",
+        "recipient" : "Henry",
+        "timestamp" : "2024-01-01T10:35:00",
+        "message" : "Okay, I'll text you when i'm on the way"
+    }
+
+]
