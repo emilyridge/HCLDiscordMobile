@@ -22,24 +22,45 @@ def createChannelFrame():
     channelFrame.grid(row=0, column=0)
 
   # After some testing, a width of 17 allows the label to span the screen without making the window too much bigger
-    channelName = tk.Label(channelFrame, text= "# Channel", font=("Arial", 25), width=17)
+    channelName = tk.Label(channelFrame, text= "# Channel", font=("Arial", 25), width=17, foreground="White", background="#31343b")
     channelName.grid(row=0, column=1)
 
+def createChatFrame():
+    global chat_display
+    # This is where all the chat messages will be displayed.
+    chatFrame = tk.Frame(app, highlightthickness=3, highlightbackground="gray")
+    chatFrame.grid(row=1, column=0)
 
+    # Create a label with the default font and text to measure its average width
+    default_font = font.nametofont("TkDefaultFont")
+    average_char_width = tk.Label(chatFrame, text="a", font=default_font).winfo_reqwidth()
+
+    chat_display_width = int(WIDTH_SCREEN / average_char_width)
+
+    # Chat display area (Text widget)
+    chat_display = tk.Text(chatFrame, bg="#31343b", fg="white", wrap=tk.WORD, width=17*2+6, highlightthickness=0, height=38)
+    chat_display.grid(row=0, column=0)
+    chat_display.tag_configure("user_message", foreground="white")
 
 
 def on_entry_click(event):
+    global entry_has_focus
+    entry_has_focus = True
     if entry.get() == "Message #Channel":
         entry.delete(0, tk.END)
         entry.config(foreground="white")
 
 def on_focus_out(event):
+    global entry_has_focus
+    entry_has_focus = False
     if not entry.get():
         entry.insert(0, "Message #Channel")
         entry.config(foreground="gray")
 
 def createMessageFrame():
     global entry
+    global entry_has_focus
+
     # This is where the user will type their message before sending.
     messageFrame = tk.Frame(app)
     messageFrame.configure(background="#31343b")
@@ -49,10 +70,11 @@ def createMessageFrame():
     # Entry widget for user input with a specific font
     entry_font = font.Font(family="Helvetica", size=12)
     entry = tk.Entry(messageFrame, bg="#202427", fg="gray", font=entry_font)
+    entry_has_focus = False
 
 
     entry.insert(0, "Message #Channel")
-    entry.grid(row=0, column=0)
+    entry.grid(row=0, column=2, padx=5, pady=5)
 
 
      # Bind events to the entry widget
@@ -61,7 +83,16 @@ def createMessageFrame():
         
     # Button to send messages
     send_button = tk.Button(messageFrame, text="Send", command=send_message)
-    send_button.grid(row=0, column=1)
+    send_button.grid(row=0, column=3, padx=5, pady=5)
+
+    # Button that toggles reply mode
+    reply_button = tk.Button(messageFrame, text="Reply", command=reply_mode_toggle)
+    reply_button.grid(row=0, column=0, padx=5, pady=5)
+
+    # Button to attach files
+    file_button = tk.Button(messageFrame, text="File+", command=attach_file)
+    file_button.grid(row=0, column=1, padx=5, pady=5)
+
 
 
 def send_message():
@@ -73,16 +104,18 @@ def send_message():
         # Clear the entry widget after sending the message
         entry.delete(0, tk.END)
 
+def check_enter_input(event):
+    global entry_has_focus
 
-WIDTH_IPHONE_15_MAX = 1290
-HEIGHT_IPHONE_15_MAX = 2796
+    # If the entry box is in focus, attempt to send a message
+    if entry_has_focus:
+        send_message()
 
-WIDTH_SCREEN = int(WIDTH_IPHONE_15_MAX/4)
-HEIGHT_SCREEN = int(HEIGHT_IPHONE_15_MAX/4)
+def reply_mode_toggle():
+    pass
 
-def display_message():
-    messagebox.showinfo("Message", "Hello this is a local application")
-
+def attach_file():
+    pass
 
 app = tk.Tk()
 app.title("Discord Mobile Demo")
@@ -93,6 +126,8 @@ app.configure(background="#31343b")
 
 init_function()
 
-
+# Checks to see if the user presses the enter key.
+app.bind("<Return>", check_enter_input)
 
 app.mainloop()
+
