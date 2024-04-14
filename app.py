@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, font, ttk
 from tkinter import messagebox
 from models import Message
+import os
 
 WIDTH_IPHONE_15_MAX = 1290
 HEIGHT_IPHONE_15_MAX = 2796
@@ -9,6 +10,7 @@ HEIGHT_IPHONE_15_MAX = 2796
 # @@ -7,35 +8,100 @@ HEIGHT_IPHONE_15_MAX = 2796
 WIDTH_SCREEN = int(WIDTH_IPHONE_15_MAX/4)
 HEIGHT_SCREEN = int(HEIGHT_IPHONE_15_MAX/4)
+ROOT = os.getcwd()
 
 # Chat screen related functions
 def init_function():
@@ -92,10 +94,6 @@ def createMessageFrame():
     # Button to attach files
     file_button = tk.Button(messageFrame, text="File+", command=attach_file)
     file_button.grid(row=0, column=1, padx=5, pady=5)
-<<<<<<< HEAD
-
-=======
->>>>>>> 279f174 ([SCRN-2] Created the minimal channel screen.)
 
 
 def send_message():
@@ -116,12 +114,9 @@ def check_enter_input(event):
 
 def reply_mode_toggle():
     pass
-<<<<<<< HEAD
-=======
 
 def attach_file():
     pass
->>>>>>> 279f174 ([SCRN-2] Created the minimal channel screen.)
 
 def attach_file():
     pass
@@ -139,16 +134,19 @@ def channel_screen_name():
     channelName = tk.Label(channel_info_frame, text= "# Channel", font=("Arial", 25), width=17, foreground="White", background="#31343b")
     channelName.grid(row=0, column=0, columnspan=3, pady=10)
 
+    # Pins button and label beneath it
     pins_button = tk.Button(channel_info_frame, text="Pins", command=pins_button_pressed)
     pins_button.grid(row=1, column=0)
     pins_label = tk.Label(channel_info_frame, text= "Pins", foreground="White", background="#31343b")
     pins_label.grid(row=2, column=0)
 
+    # Threads button and label beneath it
     threads_button = tk.Button(channel_info_frame, text="Threads", command=threads_button_pressed)
     threads_button.grid(row=1, column=1)
     threads_label = tk.Label(channel_info_frame, text= "Threads", foreground="White", background="#31343b")
     threads_label.grid(row=2, column=1)
 
+    # Notification button and label beneath it
     notifs_button = tk.Button(channel_info_frame, text="Notifs", command=notifs_button_pressed)
     notifs_button.grid(row=1, column=2)
     notifs_label = tk.Label(channel_info_frame, text= "Notifs", foreground="White", background="#31343b")
@@ -166,6 +164,108 @@ def threads_button_pressed():
 def notifs_button_pressed():
     pass
 
+# Server list related functions
+def init_server_screen():
+    server_list()
+    friends_list()
+    server_channel_list()
+    user_information()
+
+def server_list():
+    server_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-75, width=int(WIDTH_SCREEN/3)-40)
+    server_list_frame.grid(row=0, column=0, sticky="n")
+    server_list_frame.grid_propagate(0)
+
+    # Add frame data structures that act like servers.
+    test_img = tk.PhotoImage(file='templates/Test_PF1.png', width=35, height=35)
+    
+    # This is a bunch of test servers.
+    tk.Label(server_list_frame, image=test_img).grid(row=0, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=1, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=2, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=3, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=4, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=5, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=6, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=7, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=8, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=9, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=10, column=0, pady=5, padx=12)
+    tk.Label(server_list_frame, image=test_img).grid(row=11, column=0, pady=5, padx=12)
+
+
+def friends_list():
+    FRAME_SIZE = int(WIDTH_SCREEN/3)+20
+
+    friends_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-75, width=FRAME_SIZE)
+    friends_list_frame.grid(row=0, column=1, sticky="n")
+    friends_list_frame.grid_propagate(0)
+
+    # Friends button and label beside it
+    friends_button = tk.Button(friends_list_frame, text="F")
+    friends_button.grid(row=1, column=0, padx=10)
+    friends_button_label = tk.Label(friends_list_frame, text="Friends", foreground="White", background="#31343b", font=("Arial", 15))
+    friends_button_label.grid(row=1, column=1)
+
+    # Nitro button and label beside it
+    nitro_button = tk.Button(friends_list_frame, text="N")
+    nitro_button.grid(row=2, column=0, padx=10)
+    nitro_button_label = tk.Label(friends_list_frame, text="Nitro", foreground="White", background="#31343b", font=("Arial", 15))
+    nitro_button_label.grid(row=2, column=1)
+
+    # An entry to search through your friends list.
+    entry_font = font.Font(family="Helvetica", size=12)
+    friend_search_entry = tk.Entry(friends_list_frame, bg="#202427", fg="gray", font=entry_font, width=13)
+    friend_search_entry.grid(row=3, column=0, columnspan=2)
+
+    # DM button and label beside it. Would allow you to create a new dm group.
+    dm_button = tk.Button(friends_list_frame, text="+")
+    dm_button.grid(row=4, column=0)
+    dm_button_label = tk.Label(friends_list_frame, text="Direct\nMessages", foreground="White", background="#31343b", font=("Arial", 13))
+    dm_button_label.grid(row=4, column=1)
+
+    # Add data structures that switch to dms.
+
+def server_channel_list():
+    channel_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN, width=int(WIDTH_SCREEN/3)+20)
+    channel_list_frame.grid(row=0, column=2, rowspan=2, sticky="n")
+    channel_list_frame.grid_propagate(0)
+
+    server_label = tk.Label(channel_list_frame, text="Server", foreground="White", background="#31343b", font=("Arial", 15))
+    server_label.grid(row=0, column=0, sticky="n", columnspan=2)
+
+    event_button = tk.Button(channel_list_frame, text="E")
+    event_button.grid(row=1, column=0, padx=5)
+    event_button_label = tk.Label(channel_list_frame, text="Events", foreground="White", background="#31343b", font=("Arial", 15))
+    event_button_label.grid(row=1, column=1)
+
+    # Add frame data structures that act as channels
+
+def user_information():
+    user_info_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=75, width=int(WIDTH_SCREEN/3) + int(WIDTH_SCREEN/3) - 20)
+    user_info_frame.grid(row=1, column=0, columnspan=2, sticky="n")
+    # grid_propagate disables dynamic frame scaling, so the frames will always be the same size.
+    user_info_frame.grid_propagate(0)
+
+    # User information
+    username_label = tk.Label(user_info_frame, text="Test Username", font=("Arial", 10), foreground="White", background="#31343b")
+    username_label.grid(row=0, column=1, sticky="w")
+    user_status_label = tk.Label(user_info_frame, text="Online", foreground="White", background="#31343b")
+    user_status_label.grid(row=1, column=1, sticky="w")
+
+    # Mute button
+    mute_button = tk.Button(user_info_frame, text="M")
+    mute_button.grid(row=0, column=2, rowspan=2)
+
+    # Deafen button
+    deafen_button = tk.Button(user_info_frame, text="D")
+    deafen_button.grid(row=0, column=3, rowspan=2)
+
+    # Profile picture
+    test_img = tk.PhotoImage(file='templates/Test_PF1.png', width=35, height=35)
+    pf_picture = tk.Label(user_info_frame, image=test_img)
+    pf_picture.grid(row=0, column=0, rowspan=3, pady=15)
+
 # --------------------------------------
 
 app = tk.Tk()
@@ -176,7 +276,8 @@ app.minsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
 app.configure(background="#31343b")
 
 #init_function()
-init_channel_screen()
+#init_channel_screen()
+init_server_screen()
 
 # Checks to see if the user presses the enter key.
 app.bind("<Return>", check_enter_input)
