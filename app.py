@@ -10,7 +10,7 @@ HEIGHT_IPHONE_15_MAX = 2796
 WIDTH_SCREEN = int(WIDTH_IPHONE_15_MAX/4)
 HEIGHT_SCREEN = int(HEIGHT_IPHONE_15_MAX/4)
 
-
+# Chat screen related functions
 def init_function():
     # Add any initialization code here
     createChannelFrame()
@@ -92,7 +92,10 @@ def createMessageFrame():
     # Button to attach files
     file_button = tk.Button(messageFrame, text="File+", command=attach_file)
     file_button.grid(row=0, column=1, padx=5, pady=5)
+<<<<<<< HEAD
 
+=======
+>>>>>>> 279f174 ([SCRN-2] Created the minimal channel screen.)
 
 
 def send_message():
@@ -113,9 +116,57 @@ def check_enter_input(event):
 
 def reply_mode_toggle():
     pass
+<<<<<<< HEAD
+=======
 
 def attach_file():
     pass
+>>>>>>> 279f174 ([SCRN-2] Created the minimal channel screen.)
+
+def attach_file():
+    pass
+
+# Channel information related functions
+def init_channel_screen():
+    channel_screen_name()
+    channel_screen_users()
+
+def channel_screen_name():
+    channel_info_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b")
+    channel_info_frame.grid(row=0, column=0)
+
+    # After some testing, a width of 17 allows the label to span the screen without making the window too much bigger
+    channelName = tk.Label(channel_info_frame, text= "# Channel", font=("Arial", 25), width=17, foreground="White", background="#31343b")
+    channelName.grid(row=0, column=0, columnspan=3, pady=10)
+
+    pins_button = tk.Button(channel_info_frame, text="Pins", command=pins_button_pressed)
+    pins_button.grid(row=1, column=0)
+    pins_label = tk.Label(channel_info_frame, text= "Pins", foreground="White", background="#31343b")
+    pins_label.grid(row=2, column=0)
+
+    threads_button = tk.Button(channel_info_frame, text="Threads", command=threads_button_pressed)
+    threads_button.grid(row=1, column=1)
+    threads_label = tk.Label(channel_info_frame, text= "Threads", foreground="White", background="#31343b")
+    threads_label.grid(row=2, column=1)
+
+    notifs_button = tk.Button(channel_info_frame, text="Notifs", command=notifs_button_pressed)
+    notifs_button.grid(row=1, column=2)
+    notifs_label = tk.Label(channel_info_frame, text= "Notifs", foreground="White", background="#31343b")
+    notifs_label.grid(row=2, column=2, pady=10)
+
+def channel_screen_users():
+    user_frame = tk.Frame(app, background="#31343b")
+
+def pins_button_pressed():
+    pass
+
+def threads_button_pressed():
+    pass
+
+def notifs_button_pressed():
+    pass
+
+# --------------------------------------
 
 app = tk.Tk()
 app.title("Discord Mobile Demo")
@@ -124,7 +175,8 @@ app.minsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
 
 app.configure(background="#31343b")
 
-init_function()
+#init_function()
+init_channel_screen()
 
 # Checks to see if the user presses the enter key.
 app.bind("<Return>", check_enter_input)
