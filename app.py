@@ -36,13 +36,13 @@ def createChatFrame():
     global empty_message_buffer
 
     # This is where all the chat messages will be displayed.
-    chatFrame = tk.Frame(app, highlightthickness=3, highlightbackground="gray", width=WIDTH_SCREEN, height=HEIGHT_SCREEN-100, background="#31343b")
+    chatFrame = ScrollableFrame(app, width=WIDTH_SCREEN, height=HEIGHT_SCREEN-110)
     chatFrame.grid_propagate(0)
     chatFrame.grid(row=1, column=0)
 
     # Create a label with the default font and text to measure its average width
     default_font = font.nametofont("TkDefaultFont")
-    average_char_width = tk.Label(chatFrame, text="a", font=default_font).winfo_reqwidth()
+    average_char_width = tk.Label(chatFrame.interior, text="a", font=default_font).winfo_reqwidth()
 
     chat_display_width = int(WIDTH_SCREEN / average_char_width)
 
@@ -56,8 +56,8 @@ def createChatFrame():
                         + " But I expect that you will read it in full and reply in kind, otherwise I may get upset with your minimal or lack of response.")
 
     
-    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGoober", "ONLINE"), timestamp="2024-03-10T11:35:00", message="This is a test.", master=chatFrame))
-    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGuber", "ONLINE"), timestamp="2024-03-10T11:38:00", message=really_long_test_message, master=chatFrame))
+    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGoober", "ONLINE"), timestamp="2024-03-10T11:35:00", message="This is a test.", master=chatFrame.interior))
+    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGuber", "ONLINE"), timestamp="2024-03-10T11:38:00", message=really_long_test_message, master=chatFrame.interior))
 
     empty_message_size = 595
 
@@ -65,7 +65,7 @@ def createChatFrame():
         message_list[idx].grid(row=idx+1, column=0)
         empty_message_size -= message_list[idx].winfo_reqheight()
     
-    empty_message_buffer = EmptyMessage(master=chatFrame, height=empty_message_size)
+    empty_message_buffer = EmptyMessage(master=chatFrame.interior, height=empty_message_size)
     empty_message_buffer.grid(row=0, column=0, sticky='sw')
     
 
@@ -129,7 +129,7 @@ def send_message():
     if message:
         time = datetime.datetime.now()
         # Insert the message into the chat display
-        new_chat_message = UserMessage(user=User("templates/Test_PF1.png", "User", "ONLINE"), timestamp=f"{time.year}-{time.month}-{time.day}T{time.hour}:{time.minute}:{time.second}", message=message, master=chatFrame)
+        new_chat_message = UserMessage(user=User("templates/Test_PF1.png", "User", "ONLINE"), timestamp=f"{time.year}-{time.month}-{time.day}T{time.hour}:{time.minute}:{time.second}", message=message, master=chatFrame.interior)
         message_list.append(new_chat_message)
         new_chat_message.grid(row=len(message_list), column=0)
         empty_message_buffer.configure(height=empty_message_buffer.winfo_reqheight() - new_chat_message.winfo_reqheight())
@@ -310,6 +310,8 @@ app.configure(background="#31343b")
 init_function()
 #init_channel_screen()
 #init_server_screen()
+
+ttk.Style
 
 # Checks to see if the user presses the enter key.
 app.bind("<Return>", check_enter_input)
