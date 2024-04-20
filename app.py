@@ -15,15 +15,23 @@ ROOT = os.getcwd()
 
 message_list = []
 
+# Global variables for frames (different screens)
+chatScreenFrame = None
+channelScreenFrame = None
+serverScreenFrame = None
+
 # Chat screen related functions
 def init_function():
+    global chatScreenFrame
     # Add any initialization code here
+    chatScreenFrame = tk.Frame(app, background="#31343b")
     createChannelFrame()
     createChatFrame()
     createMessageFrame()
 
 def createChannelFrame():
-    channelFrame = tk.Frame(app, highlightthickness=3, highlightbackground="black")
+    global channelFrame
+    channelFrame = tk.Frame(chatScreenFrame, highlightthickness=3, highlightbackground="black")
     channelFrame.grid(row=0, column=0)
 
   # After some testing, a width of 17 allows the label to span the screen without making the window too much bigger
@@ -31,12 +39,11 @@ def createChannelFrame():
     channelName.grid(row=0, column=1)
 
 def createChatFrame():
-    global chat_display
     global chatFrame
     global empty_message_buffer
 
     # This is where all the chat messages will be displayed.
-    chatFrame = ScrollableFrame(app, width=WIDTH_SCREEN, height=HEIGHT_SCREEN-110)
+    chatFrame = ScrollableFrame(chatScreenFrame, width=WIDTH_SCREEN, height=HEIGHT_SCREEN-110)
     chatFrame.grid_propagate(0)
     chatFrame.grid(row=1, column=0)
 
@@ -69,7 +76,6 @@ def createChatFrame():
     empty_message_buffer.grid(row=0, column=0, sticky='sw')
     
 
-
 def on_entry_click(event):
     global entry_has_focus
     entry_has_focus = True
@@ -87,9 +93,10 @@ def on_focus_out(event):
 def createMessageFrame():
     global entry
     global entry_has_focus
+    global messageFrame
 
     # This is where the user will type their message before sending.
-    messageFrame = tk.Frame(app)
+    messageFrame = tk.Frame(chatScreenFrame)
     messageFrame.configure(background="#31343b")
     messageFrame.grid(row=2, column=0)
 
@@ -152,11 +159,14 @@ def attach_file():
 
 # Channel information related functions
 def init_channel_screen():
+    global channelScreenFrame
+    channelScreenFrame = tk.Frame(app, background="#31343b")
+
     channel_screen_name()
     channel_screen_users()
 
 def channel_screen_name():
-    channel_info_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b")
+    channel_info_frame = tk.Frame(channelScreenFrame, highlightthickness=3, highlightbackground="black", background="#31343b")
     channel_info_frame.grid(row=0, column=0)
 
     # After some testing, a width of 17 allows the label to span the screen without making the window too much bigger
@@ -183,7 +193,7 @@ def channel_screen_name():
 
 def channel_screen_users():
     global user_frame
-    user_frame = ScrollableFrame(app, height=HEIGHT_SCREEN-100, width=WIDTH_SCREEN)
+    user_frame = ScrollableFrame(channelScreenFrame, height=HEIGHT_SCREEN-100, width=WIDTH_SCREEN)
     user_frame.grid(row=1, column=0, sticky='e')
 
     role_frame1 = RoleFrame("Online", mention_button_pressed, master=user_frame.interior, width=53)
@@ -218,13 +228,15 @@ def mention_button_pressed(user):
 
 # Server list related functions
 def init_server_screen():
+    global serverScreenFrame
+    serverScreenFrame = tk.Frame(app, background="#31343b")
     server_list()
     friends_list()
     server_channel_list()
     user_information()
 
 def server_list():
-    server_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b")
+    server_list_frame = tk.Frame(serverScreenFrame, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-75, width=int(WIDTH_SCREEN/3)-40)
     server_list_frame.grid(row=0, column=0, sticky="n")
     server_list_scroll = ScrollableFrame(server_list_frame, height=HEIGHT_SCREEN-81, width=int(WIDTH_SCREEN/3)-40, background="#31343b")
     server_list_scroll.grid(row=0, column=0)
@@ -256,7 +268,7 @@ def server_list():
 def friends_list():
     FRAME_SIZE = int(WIDTH_SCREEN/3)+20
 
-    friends_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-64, width=FRAME_SIZE)
+    friends_list_frame = tk.Frame(serverScreenFrame, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-75, width=FRAME_SIZE)
     friends_list_frame.grid(row=0, column=1, sticky="n")
     
 
@@ -292,7 +304,7 @@ def friends_list():
     user1.grid(row=0, column=0)
 
 def server_channel_list():
-    channel_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", width=int(WIDTH_SCREEN/3)+20)
+    channel_list_frame = tk.Frame(serverScreenFrame, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN, width=int(WIDTH_SCREEN/3)+20)
     channel_list_frame.grid(row=0, column=2, rowspan=2, sticky="n")
     
 
@@ -321,7 +333,7 @@ def server_channel_list():
 
 
 def user_information():
-    user_info_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=75, width=286)
+    user_info_frame = tk.Frame(serverScreenFrame, highlightthickness=3, highlightbackground="black", background="#31343b", height=75, width=286)
     user_info_frame.grid(row=1, column=0, columnspan=2, sticky="n")
     # grid_propagate disables dynamic frame scaling, so the frames will always be the same size.
     user_info_frame.grid_propagate(0)
@@ -345,6 +357,27 @@ def user_information():
     pf_picture = tk.Label(user_info_frame, image=test_img)
     pf_picture.grid(row=0, column=0, rowspan=3, pady=15)
 
+
+
+# Functions to change display (resembling swipe)
+def switch_to_chat(event):
+    channelScreenFrame.grid_forget()
+    serverScreenFrame.grid_forget()
+    chatScreenFrame.grid(row=0, column=0)
+
+def switch_to_channel(event):
+    chatScreenFrame.grid_forget()
+    serverScreenFrame.grid_forget()
+    channelScreenFrame.grid(row=0, column=0)
+
+def switch_to_server(event):
+    chatScreenFrame.grid_forget()
+    channelScreenFrame.grid_forget()
+    serverScreenFrame.grid(row=0, column=0)
+
+
+
+
 # --------------------------------------
 
 app = tk.Tk()
@@ -355,9 +388,15 @@ app.maxsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
 
 app.configure(background="#31343b")
 
-#init_function()
-#init_channel_screen()
+init_function()
+init_channel_screen()
 init_server_screen()
+chatScreenFrame.grid(row=0, column=0)
+
+# Bind functiond to function keys
+app.bind("<F1>", switch_to_server)
+app.bind("<F2>", switch_to_chat)
+app.bind("<F3>", switch_to_channel)
 
 # Checks to see if the user presses the enter key.
 app.bind("<Return>", check_enter_input)
