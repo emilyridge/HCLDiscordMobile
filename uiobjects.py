@@ -5,7 +5,7 @@ from typing import Literal
 
 WIDTH_IPHONE_15_MAX = 1290
 HEIGHT_IPHONE_15_MAX = 2796
-WIDTH_SCREEN = int(WIDTH_IPHONE_15_MAX/4)
+WIDTH_SCREEN = 419
 HEIGHT_SCREEN = int(HEIGHT_IPHONE_15_MAX/4)
 
 class User:
@@ -191,7 +191,7 @@ class UserMessage(tk.Frame) :
         self.timestamp_label.grid(row=0, column=2, sticky='w')
 
         # Create the message label where all the user's text will go.
-        self.message_label = tk.Label(self, background=background_color, foreground=foreground_color, text=self.message, wraplength=WIDTH_SCREEN-45, justify="left")
+        self.message_label = tk.Label(self, background=background_color, foreground=foreground_color, text=self.message, wraplength=WIDTH_SCREEN-70, justify="left")
         self.message_label.grid(row=1, rowspan=5, column=1, columnspan=5, sticky='w')
     
     def grid(self, *args, **kwargs):
@@ -207,7 +207,7 @@ class UserMessage(tk.Frame) :
         height_of_frame = self.username_label.winfo_reqheight() + self.message_label.winfo_reqheight()
 
         # Ensure that the frame is of the height it needs to be, but still lies within the chat frame.
-        self.configure(height=height_of_frame, width=WIDTH_SCREEN-6)
+        self.configure(height=height_of_frame, width=WIDTH_SCREEN-20)
         self.grid_propagate(0)
 
 class EmptyMessage(tk.Frame):
@@ -222,7 +222,7 @@ class EmptyMessage(tk.Frame):
         background_color = kwargs["background"] if "background" in kwargs else kwargs["bg"] if "bg" in kwargs else "#31343b"
         message_size = kwargs["height"] if "height" in kwargs else 595
 
-        self.configure(height=message_size, width=WIDTH_SCREEN-6, background=background_color)
+        self.configure(height=message_size, width=WIDTH_SCREEN-20, background=background_color)
 
 
 class UserFrame(tk.Frame):
@@ -265,7 +265,7 @@ class UserFrame(tk.Frame):
         self.pf_label.grid(row=0, column=0, rowspan=3)
         
         # The label that will display the username
-        self.username_label = tk.Label(self, foreground=foreground_color, background=background_color, font=("Arial", 15), text=user.get_username(), anchor='w', width=17)
+        self.username_label = tk.Label(self, foreground=foreground_color, background=background_color, font=("Arial", 15), text=user.get_username(), anchor='w', width=kwargs["width"] if "width" in kwargs else 17)
         self.username_label.grid(row=1, column=1)
 
         # The label that will display the user's status, if applicable.
@@ -452,6 +452,8 @@ class ScrollableFrame(tk.Frame):
     def __init__(self, parent, background = "#31343b", *args, **kw):
         ttk.Frame.__init__(self, parent, *args, **kw)
 
+        
+
         # Create a canvas object and a vertical scrollbar for scrolling it.
         vscrollbar = ttk.Scrollbar(self, orient=VERTICAL)
         vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
@@ -469,6 +471,9 @@ class ScrollableFrame(tk.Frame):
         self.interior = interior = ttk.Frame(canvas)
         interior_id = canvas.create_window(0, 0, window=interior,
                                            anchor=NW)
+        style = ttk.Style()
+        style.configure('Custom.TFrame', background=background)
+        interior.configure(style='Custom.TFrame')
 
         # Track changes to the canvas and frame width and sync them,
         # also updating the scrollbar.
@@ -493,3 +498,129 @@ class ScrollableFrame(tk.Frame):
                 # Update the inner frame's width to fill the canvas.
                 canvas.itemconfigure(interior_id, width=canvas.winfo_width())
         canvas.bind('<Configure>', _configure_canvas)
+
+# Code borrowed from: https://stackoverflow.com/questions/13141259/expandable-and-contracting-frame-in-tkinter
+class ToggledFrame(tk.Frame):
+
+
+
+    def __init__(self, parent, text="", *args, **options):
+        tk.Frame.__init__(self, parent, *args, **options)
+
+        self.show = tk.IntVar()
+        self.show.set(0)
+        
+        self.children_list = list()
+
+        background_color = options["background"] if "background" in options else options["bg"] if "bg" in options else "#31343b"
+        foreground_color = options["foreground"] if "foreground" in options else options["fg"] if "fg" in options else "White"
+        width_frame = options["width"] if "width" in options else 15
+
+        ttk.Style().configure('Custom.TFrame', background=background_color, foreground=foreground_color)
+        self.title_frame = ttk.Frame(self, style='Custom.TFrame')
+        self.title_frame.pack(fill="x", expand=1)
+
+        ttk.Style().configure('Custom.Toolbutton', background=background_color, foreground=foreground_color)
+        self.toggle_button = ttk.Checkbutton(self.title_frame, width=2, text='+', command=self.toggle,
+                                            variable=self.show, style='Custom.Toolbutton')
+        self.toggle_button.pack(side="left")
+
+        ttk.Style().configure('Custom.Label', background=background_color, foreground=foreground_color)
+        self.frame_label = ttk.Label(self.title_frame, text=text, width=width_frame, style='Custom.Label', justify='left')
+        self.frame_label.pack(side="left", fill="x", expand=1)
+
+        
+        self.sub_frame = tk.Frame(self, relief="sunken", borderwidth=1, background=background_color)
+
+    def toggle(self):
+        if bool(self.show.get()):
+            self.sub_frame.pack(fill="x", expand=1)
+            self.toggle_button.configure(text='-')
+        else:
+            self.sub_frame.forget()
+            self.toggle_button.configure(text='+')
+    
+    def add_children(self, children : tk.Frame | list[tk.Frame]):
+        
+        def add_child(child : tk.Frame):
+            self.children_list.append(child)
+            child.pack(anchor='w')
+        
+        if isinstance(children, list):
+            for child in children:
+                add_child(child)
+        
+        elif isinstance(children, tk.Frame):
+            add_child(children)
+
+class ThreadFrame(tk.Frame):
+    
+    def __init__(self, parent, text : str ="", command="", *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+
+        ttk.Button(self, text=text, style='Custom.Toolbutton', command=command, width=kwargs["width"] if "width" in kwargs else 15).pack(side='left')
+
+class VoiceChatFrame(tk.Frame):
+
+    def __init__(self, parent, text : str ="", *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
+
+        self.children_list = list()
+        self.is_in_chat = False
+
+        ttk.Button(self, text=text, style='Custom.Toolbutton', width=kwargs["width"] if "width" in kwargs else 15, command=None).grid(row=0, column=0, sticky='w')
+
+        #self.user_in_call_label = tk.Label(self, background="#31343b", height=1)
+        #self.user_in_call_label.grid(row=1, column=0, sticky='w')
+        #self.user_in_call_label.grid_propagate(0)
+    
+    def add_user_to_call(self, user: User):
+        user_pf_label = tk.Label(master=self.user_in_call_label, background="#31343b", image=user.get_profile_picture())
+        user_pf_label.pack(side='left')
+        self.children_list.append((user_pf_label, user))
+        
+
+    def remove_user_from_call(self, user: User):
+        for child in self.children_list:
+            if child[1].get_username() == user.get_username():
+                child[0].pack_forget()
+                self.children_list.remove(child)
+
+                break
+        
+
+    def button_pressed(self):
+        if self.is_in_chat:
+            self.remove_user_from_call(User("templates/Test_PF1.png", "User", 'ONLINE'))
+            self.is_in_chat = False
+
+        else:
+            self.add_user_to_call(User("templates/Test_PF1.png", "User", 'ONLINE'))
+            self.is_in_chat = True
+
+class ChannelFrame(ToggledFrame):
+
+    def __init__(self, parent, text="", *args, **kwargs):
+        super().__init__(parent, text, *args, **kwargs)
+
+        # Convert the label into a button
+        self.frame_label.pack_forget()
+        self.frame_label = ttk.Button(self.title_frame, text=text, style='Custom.Toolbutton', command=self.printTest)
+        self.frame_label.pack(side='left', fill='x', expand=1)
+    
+    def printTest(self):
+        print(self.frame_label)
+
+    def add_children(self, children: ThreadFrame | list[ThreadFrame]):
+        
+        if isinstance(children, list):
+            for child in children:
+                if isinstance(child, ThreadFrame):
+                    super().add_children(child)
+
+        elif isinstance(children, ThreadFrame):
+            super().add_children(children)
+        
+        else:
+            raise TypeError(f"Children expected to be of type ThreadFrame or list, got {type(children)} instead.")
+

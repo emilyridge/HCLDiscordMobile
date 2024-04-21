@@ -9,7 +9,7 @@ WIDTH_IPHONE_15_MAX = 1290
 HEIGHT_IPHONE_15_MAX = 2796
 
 # @@ -7,35 +8,100 @@ HEIGHT_IPHONE_15_MAX = 2796
-WIDTH_SCREEN = int(WIDTH_IPHONE_15_MAX/4)
+WIDTH_SCREEN = 419
 HEIGHT_SCREEN = int(HEIGHT_IPHONE_15_MAX/4)
 ROOT = os.getcwd()
 
@@ -27,7 +27,7 @@ def createChannelFrame():
     channelFrame.grid(row=0, column=0)
 
   # After some testing, a width of 17 allows the label to span the screen without making the window too much bigger
-    channelName = tk.Label(channelFrame, text= "# Channel", font=("Arial", 25), width=17, foreground="White", background="#31343b")
+    channelName = tk.Label(channelFrame, text= "# Channel", font=("Arial", 25), width=21, foreground="White", background="#31343b")
     channelName.grid(row=0, column=1)
 
 def createChatFrame():
@@ -69,9 +69,6 @@ def createChatFrame():
     empty_message_buffer.grid(row=0, column=0, sticky='sw')
     
 
-    
-    
-
 
 def on_entry_click(event):
     global entry_has_focus
@@ -99,7 +96,7 @@ def createMessageFrame():
 
     # Entry widget for user input with a specific font
     entry_font = font.Font(family="Helvetica", size=12)
-    entry = tk.Entry(messageFrame, bg="#202427", fg="gray", font=entry_font)
+    entry = tk.Entry(messageFrame, bg="#202427", fg="gray", font=entry_font, width=25)
     entry_has_focus = False
 
 
@@ -163,7 +160,7 @@ def channel_screen_name():
     channel_info_frame.grid(row=0, column=0)
 
     # After some testing, a width of 17 allows the label to span the screen without making the window too much bigger
-    channelName = tk.Label(channel_info_frame, text= "# Channel", font=("Arial", 25), width=17, foreground="White", background="#31343b")
+    channelName = tk.Label(channel_info_frame, text= "# Channel", font=("Arial", 25), width=21, foreground="White", background="#31343b")
     channelName.grid(row=0, column=0, columnspan=3, pady=10)
 
     # Pins button and label beneath it
@@ -189,7 +186,7 @@ def channel_screen_users():
     user_frame = ScrollableFrame(app, height=HEIGHT_SCREEN-100, width=WIDTH_SCREEN)
     user_frame.grid(row=1, column=0, sticky='e')
 
-    role_frame1 = RoleFrame("Online", mention_button_pressed, master=user_frame.interior)
+    role_frame1 = RoleFrame("Online", mention_button_pressed, master=user_frame.interior, width=53)
     role_frame1.grid(row=0, column=0, sticky='w')
 
     user1 = User("templates/Test_PF1.png", "GoofyGoober", "ONLINE")
@@ -227,34 +224,41 @@ def init_server_screen():
     user_information()
 
 def server_list():
-    server_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-75, width=int(WIDTH_SCREEN/3)-40)
+    server_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b")
     server_list_frame.grid(row=0, column=0, sticky="n")
-    server_list_frame.grid_propagate(0)
+    server_list_scroll = ScrollableFrame(server_list_frame, height=HEIGHT_SCREEN-81, width=int(WIDTH_SCREEN/3)-40, background="#31343b")
+    server_list_scroll.grid(row=0, column=0)
+    server_list_scroll.grid_propagate(0)
 
     # Add frame data structures that act like servers.
     test_img = tk.PhotoImage(file='templates/Test_PF1.png', width=35, height=35)
     
     # This is a bunch of test servers.
-    tk.Label(server_list_frame, image=test_img).grid(row=0, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=1, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=2, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=3, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=4, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=5, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=6, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=7, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=8, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=9, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=10, column=0, pady=5, padx=12)
-    tk.Label(server_list_frame, image=test_img).grid(row=11, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=0, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=1, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=2, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=3, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=4, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=5, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=6, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=7, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=8, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=9, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=10, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=11, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=12, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=13, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=14, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=15, column=0, pady=5, padx=12)
+    tk.Label(server_list_scroll.interior, image=test_img).grid(row=16, column=0, pady=5, padx=12)
 
 
 def friends_list():
     FRAME_SIZE = int(WIDTH_SCREEN/3)+20
 
-    friends_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-75, width=FRAME_SIZE)
+    friends_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-64, width=FRAME_SIZE)
     friends_list_frame.grid(row=0, column=1, sticky="n")
-    friends_list_frame.grid_propagate(0)
+    
 
     # Friends button and label beside it
     friends_button = tk.Button(friends_list_frame, text="F")
@@ -280,11 +284,17 @@ def friends_list():
     dm_button_label.grid(row=4, column=1)
 
     # Add data structures that switch to dms.
+    friends_list_scroll = ScrollableFrame(friends_list_frame, background="#31343b", height=HEIGHT_SCREEN-205, width=FRAME_SIZE)
+    friends_list_scroll.grid(row=5, column=0, columnspan=2, sticky="e")
+    friends_list_scroll.grid_propagate(0)
+
+    user1 = UserFrame(User("templates/Test_PF1.png", "GoofyGoober", "ONLINE"), master=friends_list_scroll.interior, width=12)
+    user1.grid(row=0, column=0)
 
 def server_channel_list():
-    channel_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN, width=int(WIDTH_SCREEN/3)+20)
+    channel_list_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", width=int(WIDTH_SCREEN/3)+20)
     channel_list_frame.grid(row=0, column=2, rowspan=2, sticky="n")
-    channel_list_frame.grid_propagate(0)
+    
 
     server_label = tk.Label(channel_list_frame, text="Server", foreground="White", background="#31343b", font=("Arial", 15))
     server_label.grid(row=0, column=0, sticky="n", columnspan=2)
@@ -295,9 +305,23 @@ def server_channel_list():
     event_button_label.grid(row=1, column=1)
 
     # Add frame data structures that act as channels
+    channel_list_scroll = ScrollableFrame(channel_list_frame, height=HEIGHT_SCREEN-64, width=int(WIDTH_SCREEN/3))
+    channel_list_scroll.grid(row=2, column=0, columnspan=3, sticky='e')
+    channel_list_scroll.grid_propagate(0)
+
+    category_frame = ToggledFrame(channel_list_scroll.interior, text="Category 1")
+    category_frame.grid(row=0, column=0, sticky='w')
+    channel_frame1 = ChannelFrame(category_frame.sub_frame, text="Channel")
+    category_frame.add_children([channel_frame1, ChannelFrame(category_frame.sub_frame, text="Channel2"), ChannelFrame(category_frame.sub_frame, text="Goober-Zone")])
+
+    channel_frame1.add_children(ThreadFrame(channel_frame1.sub_frame, "Goober"))
+
+    voice_chat1 = VoiceChatFrame(category_frame.sub_frame, "Voice Chat")
+    category_frame.add_children(voice_chat1)
+
 
 def user_information():
-    user_info_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=75, width=int(WIDTH_SCREEN/3) + int(WIDTH_SCREEN/3) - 20)
+    user_info_frame = tk.Frame(app, highlightthickness=3, highlightbackground="black", background="#31343b", height=75, width=286)
     user_info_frame.grid(row=1, column=0, columnspan=2, sticky="n")
     # grid_propagate disables dynamic frame scaling, so the frames will always be the same size.
     user_info_frame.grid_propagate(0)
@@ -327,13 +351,13 @@ app = tk.Tk()
 app.title("Discord Mobile Demo")
 
 app.minsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
-app.maxsize(height=HEIGHT_SCREEN)
+app.maxsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
 
 app.configure(background="#31343b")
 
 #init_function()
-init_channel_screen()
-#init_server_screen()
+#init_channel_screen()
+init_server_screen()
 
 # Checks to see if the user presses the enter key.
 app.bind("<Return>", check_enter_input)
