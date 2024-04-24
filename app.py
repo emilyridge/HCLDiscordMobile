@@ -1,5 +1,6 @@
 import tkinter as tk
-from tkinter import messagebox, font, ttk
+from tkinter import messagebox, font, ttk, filedialog
+from PIL import Image, ImageTk, ImageOps, ImageDraw
 from models import Message
 import os
 import datetime
@@ -19,6 +20,30 @@ message_list = []
 chatScreenFrame = None
 channelScreenFrame = None
 serverScreenFrame = None
+
+# Button images
+## Chat buttons
+send_button_img = None
+file_add_img = None
+reply_button_img = None
+
+## Channel Buttons
+pins_button_img = None
+threads_button_img = None
+notifs_button_img = None
+mention_button_img = None
+
+## Server Buttons
+mute_button_img = None
+depressed_mute_button_img = None
+deafen_button_img = None
+depressed_deafen_button_img = None
+friends_button_img = None
+nitro_button_img = None
+new_dm_img = None
+events_button_img = None
+
+
 
 # Chat screen related functions
 def init_function():
@@ -119,26 +144,26 @@ def createMessageFrame():
     entry.bind("<KeyRelease>", update_send_button_visibility)
         
     # Button to send messages
-    send_button = tk.Button(messageFrame, text="Send", command=send_message)
-    label = tk.Label(messageFrame, text="", background="#31343b", width=7)
+    send_button = tk.Button(messageFrame, image=send_button_img, command=send_message, activebackground="#31343b", background="#31343b")
+    label = tk.Label(messageFrame, text="", background="#31343b", width=5)
 
     label.grid(row=0, column=3, padx=5, pady=5)
     send_button.grid(row=0, column=3, padx=5, pady=5)
      
 
     # Button that toggles reply mode
-    reply_button = tk.Button(messageFrame, text="Reply", command=reply_mode_toggle)
+    reply_button = tk.Button(messageFrame, image=reply_button_img, command=reply_mode_toggle, activebackground="#31343b", background="#31343b")
     reply_button.grid(row=0, column=0, padx=5, pady=5)
 
     # Button to attach files
-    file_button = tk.Button(messageFrame, text="File+", command=attach_file)
+    file_button = tk.Button(messageFrame, image=file_add_img, command=attach_file, activebackground="#31343b", background="#31343b")
     file_button.grid(row=0, column=1, padx=5, pady=5)
 
     update_send_button_visibility()
 
 def send_message():
     message = entry.get()
-    if message:
+    if message and entry_has_focus:
         time = datetime.datetime.now()
         # Insert the message into the chat display
         new_chat_message = UserMessage(user=User("templates/Test_PF1.png", "User", "ONLINE"), timestamp=f"{time.year}-{time.month}-{time.day}T{time.hour}:{time.minute}:{time.second}", message=message, master=chatFrame.interior)
@@ -150,8 +175,6 @@ def send_message():
         entry.delete(0, tk.END)
 
 def check_enter_input(event):
-    global entry_has_focus
-
     # If the entry box is in focus, attempt to send a message
     if entry_has_focus:
         send_message()
@@ -160,10 +183,12 @@ def reply_mode_toggle():
     pass
 
 def attach_file():
-    pass
+    # As a proof of concept, ask to open file.
+    # Close it immediately to avoid memory leak.
+    temp = filedialog.askopenfile()
+    if not temp is None:
+        temp.close()
 
-def attach_file():
-    pass
 
 def update_send_button_visibility(event=None):
     default_message = "Message #Channel"
@@ -194,19 +219,19 @@ def channel_screen_name():
     channelName.grid(row=0, column=0, columnspan=3, pady=10)
 
     # Pins button and label beneath it
-    pins_button = tk.Button(channel_info_frame, text="Pins", command=pins_button_pressed)
+    pins_button = tk.Button(channel_info_frame, image=pins_button_img, command=pins_button_pressed, activebackground="#31343b", background="#31343b")
     pins_button.grid(row=1, column=0)
     pins_label = tk.Label(channel_info_frame, text= "Pins", foreground="White", background="#31343b")
     pins_label.grid(row=2, column=0)
 
     # Threads button and label beneath it
-    threads_button = tk.Button(channel_info_frame, text="Threads", command=threads_button_pressed)
+    threads_button = tk.Button(channel_info_frame, image=threads_button_img, command=threads_button_pressed, activebackground="#31343b", background="#31343b")
     threads_button.grid(row=1, column=1)
     threads_label = tk.Label(channel_info_frame, text= "Threads", foreground="White", background="#31343b")
     threads_label.grid(row=2, column=1)
 
     # Notification button and label beneath it
-    notifs_button = tk.Button(channel_info_frame, text="Notifs", command=notifs_button_pressed)
+    notifs_button = tk.Button(channel_info_frame, image=notifs_button_img, command=notifs_button_pressed, activebackground="#31343b", background="#31343b")
     notifs_button.grid(row=1, column=2)
     notifs_label = tk.Label(channel_info_frame, text= "Notifs", foreground="White", background="#31343b")
     notifs_label.grid(row=2, column=2, pady=10)
@@ -240,11 +265,20 @@ def notifs_button_pressed():
     pass
 
 def mention_button_pressed(user):
-    print(user)
 
-    # Once the chat menu and the channel menu work concurrently,
-    # this code can be uncommented
-    #entry.insert(len(entry.get() - 1), f" @{user}")
+    if entry.get() == "Message #Channel":
+        entry.delete(0, tk.END)
+        entry.config(foreground="white")
+
+    message = f" @{user}"
+
+    # If the string is blank or there's a space at the end of the message,
+    # then don't add a space at the beginning
+    if not entry.get() or entry.get()[len(entry.get()) - 1] == " ":
+        message = f"@{user}"
+
+    entry.insert(len(entry.get()), message)
+    switch_to_chat(None)
 
 # Server list related functions
 def init_server_screen():
@@ -262,27 +296,11 @@ def server_list():
     server_list_scroll.grid(row=0, column=0)
     server_list_scroll.grid_propagate(0)
 
-    # Add frame data structures that act like servers.
-    test_img = tk.PhotoImage(file='templates/Test_PF1.png', width=35, height=35)
+    # Add frame data structures that act like servers
     
     # This is a bunch of test servers.
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=0, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=1, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=2, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=3, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=4, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=5, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=6, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=7, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=8, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=9, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=10, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=11, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=12, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=13, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=14, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=15, column=0, pady=5, padx=12)
-    tk.Label(server_list_scroll.interior, image=test_img).grid(row=16, column=0, pady=5, padx=12)
+    for i in range(17):
+        tk.Label(server_list_scroll.interior, image=test_img, background="#31343b").grid(row=i, column=0, pady=5, padx=12)
 
 
 def friends_list():
@@ -293,13 +311,13 @@ def friends_list():
     
 
     # Friends button and label beside it
-    friends_button = tk.Button(friends_list_frame, text="F")
+    friends_button = tk.Button(friends_list_frame, image=friends_button_img, activebackground="#31343b", background="#31343b")
     friends_button.grid(row=1, column=0, padx=10)
     friends_button_label = tk.Label(friends_list_frame, text="Friends", foreground="White", background="#31343b", font=("Arial", 15))
     friends_button_label.grid(row=1, column=1)
 
     # Nitro button and label beside it
-    nitro_button = tk.Button(friends_list_frame, text="N")
+    nitro_button = tk.Button(friends_list_frame, image=nitro_button_img, activebackground="#31343b", background="#31343b")
     nitro_button.grid(row=2, column=0, padx=10)
     nitro_button_label = tk.Label(friends_list_frame, text="Nitro", foreground="White", background="#31343b", font=("Arial", 15))
     nitro_button_label.grid(row=2, column=1)
@@ -310,13 +328,13 @@ def friends_list():
     friend_search_entry.grid(row=3, column=0, columnspan=2)
 
     # DM button and label beside it. Would allow you to create a new dm group.
-    dm_button = tk.Button(friends_list_frame, text="+")
+    dm_button = tk.Button(friends_list_frame, image=new_dm_img, activebackground="#31343b", background="#31343b")
     dm_button.grid(row=4, column=0)
     dm_button_label = tk.Label(friends_list_frame, text="Direct\nMessages", foreground="White", background="#31343b", font=("Arial", 13))
     dm_button_label.grid(row=4, column=1)
 
     # Add data structures that switch to dms.
-    friends_list_scroll = ScrollableFrame(friends_list_frame, background="#31343b", height=HEIGHT_SCREEN-205, width=FRAME_SIZE)
+    friends_list_scroll = ScrollableFrame(friends_list_frame, background="#31343b", height=HEIGHT_SCREEN-229, width=FRAME_SIZE)
     friends_list_scroll.grid(row=5, column=0, columnspan=2, sticky="e")
     friends_list_scroll.grid_propagate(0)
 
@@ -331,13 +349,13 @@ def server_channel_list():
     server_label = tk.Label(channel_list_frame, text="Server", foreground="White", background="#31343b", font=("Arial", 15))
     server_label.grid(row=0, column=0, sticky="n", columnspan=2)
 
-    event_button = tk.Button(channel_list_frame, text="E")
+    event_button = tk.Button(channel_list_frame, image=events_button_img, activebackground="#31343b", background="#31343b")
     event_button.grid(row=1, column=0, padx=5)
     event_button_label = tk.Label(channel_list_frame, text="Events", foreground="White", background="#31343b", font=("Arial", 15))
     event_button_label.grid(row=1, column=1)
 
     # Add frame data structures that act as channels
-    channel_list_scroll = ScrollableFrame(channel_list_frame, height=HEIGHT_SCREEN-64, width=int(WIDTH_SCREEN/3))
+    channel_list_scroll = ScrollableFrame(channel_list_frame, height=HEIGHT_SCREEN-76, width=int(WIDTH_SCREEN/3))
     channel_list_scroll.grid(row=2, column=0, columnspan=3, sticky='e')
     channel_list_scroll.grid_propagate(0)
 
@@ -353,30 +371,53 @@ def server_channel_list():
 
 
 def user_information():
+    global mute_button
+    global deafen_button
+
     user_info_frame = tk.Frame(serverScreenFrame, highlightthickness=3, highlightbackground="black", background="#31343b", height=75, width=286)
     user_info_frame.grid(row=1, column=0, columnspan=2, sticky="n")
     # grid_propagate disables dynamic frame scaling, so the frames will always be the same size.
     user_info_frame.grid_propagate(0)
 
     # User information
-    username_label = tk.Label(user_info_frame, text="Test Username", font=("Arial", 10), foreground="White", background="#31343b")
+    username_label = tk.Label(user_info_frame, text="User", anchor='w', justify='left', font=("Arial", 10), foreground="White", background="#31343b", width=19)
     username_label.grid(row=0, column=1, sticky="w")
     user_status_label = tk.Label(user_info_frame, text="Online", foreground="White", background="#31343b")
     user_status_label.grid(row=1, column=1, sticky="w")
 
     # Mute button
-    mute_button = tk.Button(user_info_frame, text="M")
+    mute_button = tk.Button(user_info_frame, image=mute_button_img, activebackground="#31343b", background="#31343b", command=mute_button_pressed)
     mute_button.grid(row=0, column=2, rowspan=2)
+    mute_button.pressed = False
 
     # Deafen button
-    deafen_button = tk.Button(user_info_frame, text="D")
+    deafen_button = tk.Button(user_info_frame, image=deafen_button_img, activebackground="#31343b", background="#31343b", command=deafen_button_pressed)
     deafen_button.grid(row=0, column=3, rowspan=2)
+    deafen_button.pressed = False
 
     # Profile picture
-    test_img = tk.PhotoImage(file='templates/Test_PF1.png', width=35, height=35)
-    pf_picture = tk.Label(user_info_frame, image=test_img)
+    pf_picture = tk.Label(user_info_frame, image=test_img, background="#31343b")
     pf_picture.grid(row=0, column=0, rowspan=3, pady=15)
 
+def mute_button_pressed():
+    
+    if mute_button.pressed:
+        mute_button.pressed = False
+        mute_button.configure(image=mute_button_img)
+    
+    else:
+        mute_button.pressed = True
+        mute_button.configure(image=depressed_mute_button_img)
+
+def deafen_button_pressed():
+    
+    if deafen_button.pressed:
+        deafen_button.pressed = False
+        deafen_button.configure(image=deafen_button_img)
+    
+    else:
+        deafen_button.pressed = True
+        deafen_button.configure(image=depressed_deafen_button_img)
 
 
 # Functions to change display (resembling swipe)
@@ -397,6 +438,44 @@ def switch_to_server(event):
 
 
 
+def initialize_button_images():
+    global send_button_img
+    global file_add_img
+    global reply_button_img
+
+    send_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Send_Button.png").resize((35, 35)))
+    file_add_img = ImageTk.PhotoImage(Image.open("templates/Buttons/File_Add_Button.png").resize((35, 35)))
+    reply_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Reply_Button.png").resize((35, 35)))
+ 
+    global pins_button_img
+    global threads_button_img
+    global notifs_button_img
+
+    pins_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Pins_Button.png").resize((35, 35)))
+    threads_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Threads_Button.png").resize((35, 35)))
+    notifs_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Notif_Button.png").resize((35, 35)))
+
+
+    global mute_button_img
+    global depressed_mute_button_img
+    global deafen_button_img
+    global depressed_deafen_button_img
+    global friends_button_img
+    global nitro_button_img
+    global new_dm_img
+    global events_button_img
+
+    mute_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Microphone_Button.png").resize((35, 35)))
+    depressed_mute_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Microphone_Button_Depressed.png").resize((35, 35)))
+    deafen_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Deafen_Button.png").resize((35, 35)))
+    depressed_deafen_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Deafen_Button_Depressed.png").resize((35, 35)))
+    friends_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Friends_Button.png").resize((35, 35)))
+    nitro_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Nitro_Button.png").resize((35, 35)))
+    new_dm_img = ImageTk.PhotoImage(Image.open("templates/Buttons/New_DM_Button.png").resize((35, 35)))
+    events_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Events_Button.png").resize((35, 35)))
+
+    
+
 
 # --------------------------------------
 
@@ -408,6 +487,10 @@ app.maxsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
 
 app.configure(background="#31343b")
 
+test_img = Image.open("templates/Test_PF1.png").resize((35,35))
+test_img = ImageTk.PhotoImage(test_img)
+
+initialize_button_images()
 init_function()
 init_channel_screen()
 init_server_screen()
