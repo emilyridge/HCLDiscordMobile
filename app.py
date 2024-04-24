@@ -185,7 +185,23 @@ def channel_screen_name():
     notifs_label.grid(row=2, column=2, pady=10)
 
 def channel_screen_users():
-    user_frame = tk.Frame(app, background="#31343b")
+    global user_frame
+    user_frame = ScrollableFrame(app, height=HEIGHT_SCREEN-100, width=WIDTH_SCREEN)
+    user_frame.grid(row=1, column=0, sticky='e')
+
+    role_frame1 = RoleFrame("Online", mention_button_pressed, master=user_frame.interior)
+    role_frame1.grid(row=0, column=0, sticky='w')
+
+    user1 = User("templates/Test_PF1.png", "GoofyGoober", "ONLINE")
+    role_frame1.add_users(user1)
+    user2 = User("templates/Test_PF1.png", "GoofyGuber", "ONLINE", "Playing Terraria")
+    role_frame1.add_users(user2)
+
+    role_frame2 = RoleFrame("Admins", mention_button_pressed, role_color="Pink", master=user_frame.interior)
+    role_frame2.grid(row=1, column=0, sticky='w')
+
+    testList = [User("templates/Test_PF1.png", "CyaMan", "OFFLINE"), User("templates/Test_PF1.png", "C@tLands", "OFFLINE"), User("templates/Test_PF1.png", "TestYall", "IDLE")]
+    role_frame2.add_users(testList)
 
 def pins_button_pressed():
     pass
@@ -195,6 +211,13 @@ def threads_button_pressed():
 
 def notifs_button_pressed():
     pass
+
+def mention_button_pressed(user):
+    print(user)
+
+    # Once the chat menu and the channel menu work concurrently,
+    # this code can be uncommented
+    #entry.insert(len(entry.get() - 1), f" @{user}")
 
 # Server list related functions
 def init_server_screen():
@@ -304,14 +327,13 @@ app = tk.Tk()
 app.title("Discord Mobile Demo")
 
 app.minsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
+app.maxsize(height=HEIGHT_SCREEN)
 
 app.configure(background="#31343b")
 
-init_function()
-#init_channel_screen()
+#init_function()
+init_channel_screen()
 #init_server_screen()
-
-ttk.Style
 
 # Checks to see if the user presses the enter key.
 app.bind("<Return>", check_enter_input)
