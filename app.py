@@ -91,6 +91,7 @@ def createMessageFrame():
     global entry
     global entry_has_focus
     global send_button
+    global label
 
     # This is where the user will type their message before sending.
     messageFrame = tk.Frame(app)
@@ -115,8 +116,11 @@ def createMessageFrame():
         
     # Button to send messages
     send_button = tk.Button(messageFrame, text="Send", command=send_message)
+    label = tk.Label(app, text="Label")
+
+    label.grid(row=0, column=3, padx=5, pady=5, sticky='ew')
     send_button.grid(row=0, column=3, padx=5, pady=5)
-    #update_send_button_visibility()
+     
 
     # Button that toggles reply mode
     reply_button = tk.Button(messageFrame, text="Reply", command=reply_mode_toggle)
@@ -157,12 +161,17 @@ def attach_file():
 def attach_file():
     pass
 
-def update_send_button_visibility(*args):
+def update_send_button_visibility(event=None):
     default_message = "Message #Channel"
+    
     if entry.get() and entry.get() != default_message:
+        label.grid_remove()
         send_button.grid(row=0, column=3, padx=5, pady=5)
+
     else:
         send_button.grid_remove()
+        label.grid(row=0, column=3, padx=5, pady=5)
+
 
 
 # Channel information related functions
