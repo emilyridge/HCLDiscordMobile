@@ -94,6 +94,8 @@ def createMessageFrame():
     global entry
     global entry_has_focus
     global messageFrame
+    global label
+    global send_button
 
     # This is where the user will type their message before sending.
     messageFrame = tk.Frame(chatScreenFrame)
@@ -114,10 +116,19 @@ def createMessageFrame():
      # Bind events to the entry widget
     entry.bind("<FocusIn>", on_entry_click)
     entry.bind("<FocusOut>", on_focus_out)
+    entry.bind("<KeyRelease>", update_send_button_visibility)
         
     # Button to send messages
     send_button = tk.Button(messageFrame, text="Send", command=send_message)
+    label = tk.Label(messageFrame, text="", background="#31343b", width=7)
+
+    label.grid(row=0, column=3, padx=5, pady=5)
     send_button.grid(row=0, column=3, padx=5, pady=5)
+
+    #channelName = tk.Label(channel_info_frame, text= "# Channel", font=("Arial", 25), width=17, foreground="White", background="#31343b")
+    #channelName.grid(row=0, column=0, columnspan=3, pady=10)
+
+     
 
     # Button that toggles reply mode
     reply_button = tk.Button(messageFrame, text="Reply", command=reply_mode_toggle)
@@ -127,6 +138,7 @@ def createMessageFrame():
     file_button = tk.Button(messageFrame, text="File+", command=attach_file)
     file_button.grid(row=0, column=1, padx=5, pady=5)
 
+    update_send_button_visibility()
 
 def send_message():
     message = entry.get()
@@ -156,6 +168,18 @@ def attach_file():
 
 def attach_file():
     pass
+
+def update_send_button_visibility(event=None):
+    default_message = "Message #Channel"
+    if entry.get() and entry.get() != default_message:
+        label.grid_remove()
+        send_button.grid(row=0, column=3, padx=5, pady=5)
+
+    else:
+        send_button.grid_remove()
+        label.grid(row=0, column=3, padx=5, pady=5)
+
+
 
 # Channel information related functions
 def init_channel_screen():
