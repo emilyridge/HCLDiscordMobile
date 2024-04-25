@@ -116,10 +116,14 @@ def createMessageFrame():
         
     # Button to send messages
     send_button = tk.Button(messageFrame, text="Send", command=send_message)
-    label = tk.Label(app, text="Label")
+    label = tk.Label(messageFrame, text="", background="#31343b", width=7)
 
-    label.grid(row=0, column=3, padx=5, pady=5, sticky='ew')
+    label.grid(row=0, column=3, padx=5, pady=5)
     send_button.grid(row=0, column=3, padx=5, pady=5)
+
+    #channelName = tk.Label(channel_info_frame, text= "# Channel", font=("Arial", 25), width=17, foreground="White", background="#31343b")
+    #channelName.grid(row=0, column=0, columnspan=3, pady=10)
+
      
 
     # Button that toggles reply mode
@@ -163,7 +167,6 @@ def attach_file():
 
 def update_send_button_visibility(event=None):
     default_message = "Message #Channel"
-    
     if entry.get() and entry.get() != default_message:
         label.grid_remove()
         send_button.grid(row=0, column=3, padx=5, pady=5)
