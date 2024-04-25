@@ -48,9 +48,16 @@ class User:
         self.status_message = user_status_message
     
 
-    def get_profile_picture(self):
-        """Get the User object's profile picture."""
-        return ImageTk.PhotoImage(Image.open(self.user_pf).resize((35, 35)))
+    def get_profile_picture(self, size : int = 35):
+        """Get the User object's profile picture.
+        
+        Parameters
+        ----------
+        size : int
+            The size the image will be drawn at.
+            The image is always a square of sizexsize
+        """
+        return ImageTk.PhotoImage(Image.open(self.user_pf).resize((size, size)))
     
     def set_profile_picture(self, user_pf: str):
         """
@@ -119,7 +126,7 @@ class User:
 
 class UserMessage(tk.Frame) :
 
-    def __init__(self, user: User, timestamp: str, message: str, *args, **kwargs) -> None:
+    def __init__(self, user: User, timestamp: str, message: str, reply_function, reply_message = None, *args, **kwargs) -> None:
         """
         Parameters
         ----------
@@ -141,6 +148,7 @@ class UserMessage(tk.Frame) :
                 height, highlightbackground, highlightcolor, highlightthickness, relief, takefocus, visual, width.
         """
         background_color = "#31343b"
+        actve_bg_color = "#283039"
         foreground_color = "White"
 
         super().__init__(*args, **kwargs)
@@ -174,22 +182,33 @@ class UserMessage(tk.Frame) :
             raise ValueError(f"Message must be at least 1 character long")
         self.message = message
 
+        self.reply_frame = tk.Frame(self, background=background_color, width=WIDTH_SCREEN-50)
+        self.reply_frame.grid(row=0, column=1, columnspan=3)
+        reply_frame_height = 0
+
+        if not reply_message is None:
+           reply_frame_height = self.add_reply_to_message(reply_message, background_color, foreground_color)
+        
+        self.reply_frame.configure(height=reply_frame_height)
+        self.reply_frame.grid_propagate(0)
+
         # Create the profile picture label
         self.user_pf_picture = user.get_profile_picture()
         self.user_pf_label = tk.Label(self, image=self.user_pf_picture, background=background_color)
-        self.user_pf_label.grid(row=0, rowspan=2, column=0, pady=3)
+        self.user_pf_label.grid(row=2, rowspan=2, column=0, pady=3)
 
         # Create username label
         self.username_label = tk.Label(self, background=background_color, foreground=foreground_color, font=("Arial", 15), text=self.user.get_username(), justify="left")
-        self.username_label.grid(row=0, column=1, sticky='w')
+        self.username_label.grid(row=2, column=1, sticky='w')
 
         # Create timestamp label
         self.timestamp_label = tk.Label(self, background=background_color, foreground=foreground_color, font=("Arial", 7), text=self.timestamp, justify="left")
-        self.timestamp_label.grid(row=0, column=2, sticky='w')
+        self.timestamp_label.grid(row=2, column=2, sticky='w')
 
         # Create the message label where all the user's text will go.
-        self.message_label = tk.Label(self, background=background_color, foreground=foreground_color, text=self.message, wraplength=WIDTH_SCREEN-70, justify="left")
-        self.message_label.grid(row=1, rowspan=5, column=1, columnspan=5, sticky='w')
+        self.message_label = tk.Button(self, command=lambda: reply_function(self), background=background_color, activebackground=actve_bg_color, foreground=foreground_color, activeforeground=foreground_color, disabledforeground=foreground_color, 
+                                       text=self.message, wraplength=WIDTH_SCREEN-70, justify="left", width=50, anchor='w', relief='solid', borderwidth=0, state='disabled')
+        self.message_label.grid(row=3, rowspan=5, column=1, columnspan=5, sticky='w')
     
     def grid(self, *args, **kwargs):
         
@@ -201,11 +220,33 @@ class UserMessage(tk.Frame) :
         else:
             super().grid(sticky='sw', *args, **kwargs)
 
-        height_of_frame = self.username_label.winfo_reqheight() + self.message_label.winfo_reqheight()
+        height_of_frame = self.username_label.winfo_reqheight() + self.message_label.winfo_reqheight() + self.reply_frame.winfo_reqheight() + 15
 
         # Ensure that the frame is of the height it needs to be, but still lies within the chat frame.
         self.configure(height=height_of_frame, width=WIDTH_SCREEN-20)
         self.grid_propagate(0)
+    
+    def reply_button_pressed(self, activate):
+        if activate:
+            self.message_label.configure(state='active')
+        
+        else:
+            self.message_label.configure(state='disabled')
+    
+    def add_reply_to_message(self, reply_message, background_color, foreground_color):
+        self.reply_pf = reply_message.user.get_profile_picture(15)
+        tk.Label(self.reply_frame, image=self.reply_pf, background=background_color).grid(row=0, column=0)
+
+        username = reply_message.user.get_username()
+        message = reply_message.message
+
+        if len(username) + len(message) > 50:
+            message = message[0:50] + "..."
+
+        tk.Label(self.reply_frame, text=username, font=("Arial", 10), anchor='w', background=background_color, foreground=foreground_color).grid(row=0, column=1)
+        tk.Label(self.reply_frame, text=message, font=("Arial", 8), anchor='w', background=background_color, foreground=foreground_color).grid(row=0, column=2)
+
+        return 20
 
 class EmptyMessage(tk.Frame):
 
@@ -456,19 +497,19 @@ class ScrollableFrame(tk.Frame):
         # Create a canvas object and a vertical scrollbar for scrolling it.
         vscrollbar = ttk.Scrollbar(self, orient=VERTICAL)
         vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
-        canvas = tk.Canvas(self, bd=0, highlightthickness=0,
+        self.canvas = tk.Canvas(self, bd=0, highlightthickness=0,
                            yscrollcommand=vscrollbar.set, height=kw["height"], width=kw["width"], background=background)
-        canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
+        self.canvas.pack(side=LEFT, fill=BOTH, expand=TRUE)
         
-        vscrollbar.config(command=canvas.yview)
+        vscrollbar.config(command=self.canvas.yview)
 
         # Reset the view
-        canvas.xview_moveto(0)
-        canvas.yview_moveto(0)
+        self.canvas.xview_moveto(0)
+        self.canvas.yview_moveto(0)
 
         # Create a frame inside the canvas which will be scrolled with it.
-        self.interior = interior = ttk.Frame(canvas)
-        interior_id = canvas.create_window(0, 0, window=interior,
+        self.interior = interior = ttk.Frame(self.canvas)
+        interior_id = self.canvas.create_window(0, 0, window=interior,
                                            anchor=NW)
         style = ttk.Style()
         style.configure('Custom.TFrame', background=background)
@@ -478,25 +519,31 @@ class ScrollableFrame(tk.Frame):
         # also updating the scrollbar.
         def _configure_interior(event):
             # Update the scrollbars to match the size of the inner frame.
-            current_view = canvas.yview()[1]
+            current_view = self.canvas.yview()[1]
             size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
-            canvas.config(scrollregion="0 0 %s %s" % size)
-            if interior.winfo_reqwidth() != canvas.winfo_width():
+            self.canvas.config(scrollregion="0 0 %s %s" % size)
+            if interior.winfo_reqwidth() != self.canvas.winfo_width():
                 # Update the canvas's width to fit the inner frame.
-                canvas.config(width=interior.winfo_reqwidth())
+                self.canvas.config(width=interior.winfo_reqwidth())
             
             # If the scroll bar is "close enough" to the bottom,
             # when the canvas is updated, keep the scroll bar on the bottom.
             if(current_view > 0.97):
-                canvas.yview_moveto(1)
+                self.canvas.yview_moveto(1)
 
         interior.bind('<Configure>', _configure_interior)
 
         def _configure_canvas(event):
-            if interior.winfo_reqwidth() != canvas.winfo_width():
+            if interior.winfo_reqwidth() != self.canvas.winfo_width():
                 # Update the inner frame's width to fill the canvas.
-                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
-        canvas.bind('<Configure>', _configure_canvas)
+                self.canvas.itemconfigure(interior_id, width=self.canvas.winfo_width())
+        self.canvas.bind('<Configure>', _configure_canvas)
+    
+    def configure_height(self, height : int):
+        scroll_height = self.canvas.yview()
+        self.canvas.configure(height=height)
+        self.canvas.yview_moveto(scroll_height[1])
+
 
 # Code borrowed from: https://stackoverflow.com/questions/13141259/expandable-and-contracting-frame-in-tkinter
 class ToggledFrame(tk.Frame):
