@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter.constants import *
 from typing import Literal
+from PIL import Image, ImageTk
 
 WIDTH_IPHONE_15_MAX = 1290
 HEIGHT_IPHONE_15_MAX = 2796
@@ -49,7 +50,7 @@ class User:
 
     def get_profile_picture(self):
         """Get the User object's profile picture."""
-        return tk.PhotoImage(file=self.user_pf, height=35, width=35)
+        return ImageTk.PhotoImage(Image.open(self.user_pf).resize((35, 35)))
     
     def set_profile_picture(self, user_pf: str):
         """
@@ -117,11 +118,6 @@ class User:
             
 
 class UserMessage(tk.Frame) :
-    
-
-    user = None
-    timestamp = ""
-    message = ""
 
     def __init__(self, user: User, timestamp: str, message: str, *args, **kwargs) -> None:
         """
@@ -179,7 +175,8 @@ class UserMessage(tk.Frame) :
         self.message = message
 
         # Create the profile picture label
-        self.user_pf_label = tk.Label(self, image=user.get_profile_picture())
+        self.user_pf_picture = user.get_profile_picture()
+        self.user_pf_label = tk.Label(self, image=self.user_pf_picture, background=background_color)
         self.user_pf_label.grid(row=0, rowspan=2, column=0, pady=3)
 
         # Create username label
@@ -261,7 +258,8 @@ class UserFrame(tk.Frame):
         foreground_color = kwargs["foreground"] if "foreground" in kwargs else kwargs["fg"] if "bg" in kwargs else DEF_FG_COLOR
 
         # The user's profile picture
-        self.pf_label = tk.Label(self, image=user.get_profile_picture())
+        self.profile_picture = user.get_profile_picture()
+        self.pf_label = tk.Label(self, image=self.profile_picture, background=background_color)
         self.pf_label.grid(row=0, column=0, rowspan=3)
         
         # The label that will display the username
@@ -324,6 +322,7 @@ class RoleFrame(tk.Frame):
         self.childrenlist = list()
         self.buttonlist = list()
         self.button_function = button_function
+        self.mention_button_img = ImageTk.PhotoImage(Image.open("templates/Buttons/Mention_Button.png").resize((35, 35)))
 
         # If the user sets the background then update the color for the entire frame
         background_color = kwargs["background"] if "background" in kwargs else kwargs["bg"] if "bg" in kwargs else DEF_BG_COLOR
@@ -368,7 +367,7 @@ class RoleFrame(tk.Frame):
             frame.grid(row=len(self.childrenlist) + 1, column=0, sticky='w')
             self.role_label.configure(text=f"{self.role_name} ─ {len(self.childrenlist)}")
 
-            mention_button = tk.Button(frame, text="M", command=lambda: self.button_function(user.username))
+            mention_button = tk.Button(frame, image=self.mention_button_img, command=lambda: self.button_function(user.username), activebackground="#31343b", background="#31343b")
             mention_button.grid(row=0, column=2, rowspan=3)
             self.buttonlist.append(mention_button)
 
