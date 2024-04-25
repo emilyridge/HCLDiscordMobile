@@ -124,10 +124,6 @@ def createMessageFrame():
 
     label.grid(row=0, column=3, padx=5, pady=5)
     send_button.grid(row=0, column=3, padx=5, pady=5)
-
-    #channelName = tk.Label(channel_info_frame, text= "# Channel", font=("Arial", 25), width=17, foreground="White", background="#31343b")
-    #channelName.grid(row=0, column=0, columnspan=3, pady=10)
-
      
 
     # Button that toggles reply mode
