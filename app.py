@@ -21,6 +21,12 @@ chatScreenFrame = None
 channelScreenFrame = None
 serverScreenFrame = None
 
+# Reply frame stuff
+reply_buffer = None
+reply_pf = None
+reply_username = None
+reply_message = None
+
 # Button images
 ## Chat buttons
 send_button_img = None
@@ -87,9 +93,8 @@ def createChatFrame():
                         + " Imagine this is a super long rant that i'm going on, expressing a deep and possibly slightly controversial thought. Many may not agree, but I do not care as this message is very important to me and, maybe, me alone." 
                         + " But I expect that you will read it in full and reply in kind, otherwise I may get upset with your minimal or lack of response.")
 
-    
-    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGoober", "ONLINE"), timestamp="2024-03-10T11:35:00", message="This is a test.", master=chatFrame.interior))
-    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGuber", "ONLINE"), timestamp="2024-03-10T11:38:00", message=really_long_test_message, master=chatFrame.interior))
+    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGoober", "ONLINE"), timestamp="2024-03-10T11:35:00", message="This is a test.", reply_function=reply_message_clicked, master=chatFrame.interior))
+    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGuber", "ONLINE"), timestamp="2024-03-10T11:38:00", message=really_long_test_message, reply_function=reply_message_clicked, master=chatFrame.interior))
 
     empty_message_size = 595
 
@@ -121,11 +126,17 @@ def createMessageFrame():
     global messageFrame
     global label
     global send_button
+    global reply_button
+    global reply_frame
 
     # This is where the user will type their message before sending.
     messageFrame = tk.Frame(chatScreenFrame)
     messageFrame.configure(background="#31343b")
-    messageFrame.grid(row=2, column=0)
+    messageFrame.grid(row=3, column=0)
+
+    # Preview for reply message
+    reply_frame = tk.Frame(chatScreenFrame, bg="#31343b", width=WIDTH_SCREEN)
+    reply_frame.grid(row=2, column=0, sticky='w')
 
 
     # Entry widget for user input with a specific font
@@ -135,7 +146,7 @@ def createMessageFrame():
 
 
     entry.insert(0, "Message #Channel")
-    entry.grid(row=0, column=2, padx=5, pady=5)
+    entry.grid(row=1, column=2, padx=5, pady=5)
 
 
      # Bind events to the entry widget
@@ -148,16 +159,18 @@ def createMessageFrame():
     label = tk.Label(messageFrame, text="", background="#31343b", width=5)
 
     label.grid(row=0, column=3, padx=5, pady=5)
-    send_button.grid(row=0, column=3, padx=5, pady=5)
+    send_button.grid(row=1, column=3, padx=5, pady=5)
      
 
     # Button that toggles reply mode
     reply_button = tk.Button(messageFrame, image=reply_button_img, command=reply_mode_toggle, activebackground="#31343b", background="#31343b")
-    reply_button.grid(row=0, column=0, padx=5, pady=5)
+    reply_button.grid(row=1, column=0, padx=5, pady=5)
+    reply_button.pressed = False
+    reply_button.message = None
 
     # Button to attach files
     file_button = tk.Button(messageFrame, image=file_add_img, command=attach_file, activebackground="#31343b", background="#31343b")
-    file_button.grid(row=0, column=1, padx=5, pady=5)
+    file_button.grid(row=1, column=1, padx=5, pady=5)
 
     update_send_button_visibility()
 
@@ -166,13 +179,19 @@ def send_message():
     if message and entry_has_focus:
         time = datetime.datetime.now()
         # Insert the message into the chat display
-        new_chat_message = UserMessage(user=User("templates/Test_PF1.png", "User", "ONLINE"), timestamp=f"{time.year}-{time.month}-{time.day}T{time.hour}:{time.minute}:{time.second}", message=message, master=chatFrame.interior)
+        new_chat_message = UserMessage(user=User("templates/Test_PF1.png", "User", "ONLINE"), timestamp=f"{time.year}-{time.month}-{time.day}T{time.hour}:{time.minute}:{time.second}", 
+                                       message=message, reply_function=reply_message_clicked, reply_message=reply_button.message, master=chatFrame.interior)
         message_list.append(new_chat_message)
         new_chat_message.grid(row=len(message_list), column=0)
         empty_message_buffer.configure(height=empty_message_buffer.winfo_reqheight() - new_chat_message.winfo_reqheight())
+
+        new_chat_message.reply_button_pressed(reply_button.pressed)
         
         # Clear the entry widget after sending the message
         entry.delete(0, tk.END)
+
+        if reply_button.pressed and reply_button.message:
+            reply_mode_toggle()
 
 def check_enter_input(event):
     # If the entry box is in focus, attempt to send a message
@@ -180,7 +199,60 @@ def check_enter_input(event):
         send_message()
 
 def reply_mode_toggle():
-    pass
+    reply_button.pressed = not reply_button.pressed
+
+    if reply_button.pressed:
+        reply_button.configure(relief='sunken')
+    
+    else:
+        reply_button.configure(relief='raised')
+        reply_button.message = None
+        reply_preview_clear()
+
+
+    for message in message_list:
+        message.reply_button_pressed(reply_button.pressed)
+
+def reply_preview_clear():
+    if not reply_pf is None:
+        reply_pf.grid_forget()
+        reply_username.grid_forget()
+        reply_message.grid_forget()
+        reply_buffer.grid_forget()
+        reply_frame.configure(highlightthickness=0)
+        chatFrame.configure_height(height=HEIGHT_SCREEN-110)
+
+def reply_message_clicked(message):
+    global reply_pf
+    global reply_pf_file
+    global reply_username
+    global reply_buffer
+    global reply_message
+
+    reply_button.message = message
+
+    reply_preview_clear()
+
+    #reply_frame.configure(highlightthickness=1, highlightbackground="Black")
+    chatFrame.configure_height(height=HEIGHT_SCREEN-135)
+
+    reply_buffer = tk.Label(reply_frame, width=3, bg="#31343b")
+    reply_buffer.grid(row=0, column=0)
+
+    reply_pf_file = message.user.get_profile_picture(20)
+    reply_pf = tk.Label(reply_frame, bg="#31343b", anchor='w', image=reply_pf_file)
+    reply_pf.grid(row=0, column=1)
+
+    reply_username = tk.Label(reply_frame, bg="#31343b", fg="White", text=message.user.get_username(), anchor='w', justify='left', font=("Arial", 10))
+    reply_username.grid(row=0, column=2)
+
+    message_str = message.message
+
+    if len(message.user.get_username()) + len(message_str) > 55:
+        message_str = message_str[0:55] + "..."
+
+    reply_message = tk.Label(reply_frame, bg="#31343b", foreground="White", text=message_str, anchor='w', justify='left', font=("Arial", 8))
+    reply_message.grid(row=0, column=3)
 
 def attach_file():
     # As a proof of concept, ask to open file.
@@ -194,11 +266,11 @@ def update_send_button_visibility(event=None):
     default_message = "Message #Channel"
     if entry.get() and entry.get() != default_message:
         label.grid_remove()
-        send_button.grid(row=0, column=3, padx=5, pady=5)
+        send_button.grid(row=1, column=3, padx=5, pady=5)
 
     else:
         send_button.grid_remove()
-        label.grid(row=0, column=3, padx=5, pady=5)
+        label.grid(row=1, column=3, padx=5, pady=5)
 
 
 
@@ -278,6 +350,7 @@ def mention_button_pressed(user):
         message = f"@{user}"
 
     entry.insert(len(entry.get()), message)
+    update_send_button_visibility()
     switch_to_chat(None)
 
 # Server list related functions
