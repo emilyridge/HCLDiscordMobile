@@ -182,10 +182,12 @@ class UserMessage(tk.Frame) :
             raise ValueError(f"Message must be at least 1 character long")
         self.message = message
 
+        # Create the area where a reply can be placed
         self.reply_frame = tk.Frame(self, background=background_color, width=WIDTH_SCREEN-50)
         self.reply_frame.grid(row=0, column=1, columnspan=3)
         reply_frame_height = 0
 
+        # Add the reply to the message if there is one.
         if not reply_message is None:
            reply_frame_height = self.add_reply_to_message(reply_message, background_color, foreground_color)
         
@@ -211,7 +213,10 @@ class UserMessage(tk.Frame) :
         self.message_label.grid(row=3, rowspan=5, column=1, columnspan=5, sticky='w')
     
     def grid(self, *args, **kwargs):
-        
+        """
+        Position a widget in the parent widget in a grid. Use as options: column=number - use cell identified with given column (starting with 0) columnspan=number - this widget will span several columns in=master - use master to contain this widget in_=master - see 'in' option description ipadx=amount - add internal padding in x direction ipady=amount - add internal padding in y direction padx=amount - add padding in x direction pady=amount - add padding in y direction row=number - use cell identified with given row (starting with 0) rowspan=number - this widget will span several rows sticky=NSEW - if cell is larger on which sides will this
+              widget stick to the cell boundary
+        """
         # By default, this message will stick to the bottom left,
         # but add support for other configurations.
         if "sticky" in kwargs:
@@ -227,13 +232,29 @@ class UserMessage(tk.Frame) :
         self.grid_propagate(0)
     
     def reply_button_pressed(self, activate):
+        """When the reply button is pressed, this toggles the ability to click on the message."""
         if activate:
             self.message_label.configure(state='active')
         
         else:
             self.message_label.configure(state='disabled')
     
-    def add_reply_to_message(self, reply_message, background_color, foreground_color):
+    def add_reply_to_message(self, reply_message, background_color : str, foreground_color : str):
+        """
+        Adds a reply to a message, should only be used on initialization
+
+        Parameters
+        ----------
+
+        reply_message : UserMessage
+            The UserMessage object that this UserMessage is replying to.
+        
+        background_color : str
+            The background color of the reply label
+        
+        foreground_color : str
+            The foreground color of the reply label
+        """
         self.reply_pf = reply_message.user.get_profile_picture(15)
         tk.Label(self.reply_frame, image=self.reply_pf, background=background_color).grid(row=0, column=0)
 
@@ -587,7 +608,16 @@ class ToggledFrame(tk.Frame):
             self.toggle_button.configure(text='+')
     
     def add_children(self, children : tk.Frame | list[tk.Frame]):
-        
+        """
+        Adds children to this ToggleFrame object.
+
+        Parameters 
+        ----------
+
+        children : Frame | list[Frame]
+            The Frame or Frames to be added to this ToggledFrame.
+
+        """
         def add_child(child : tk.Frame):
             self.children_list.append(child)
             child.pack(anchor='w')
@@ -601,7 +631,33 @@ class ToggledFrame(tk.Frame):
 
 class ThreadFrame(tk.Frame):
     
+    
     def __init__(self, parent, text : str ="", command="", *args, **kwargs):
+        """
+        An object that represents a thread. 
+        This object should only be attached to ChannelFrame objects.
+
+        Parameters
+        ----------
+        parent : ChannelFrame
+            The channel that this thread is a part of.
+        
+        text : str
+            The name of thread
+        
+        command : function
+            The function that will be used when the thread is clicked on.
+        
+        args/kwargs
+            Any values that will modify the Frame object's attributes.
+            Below is the documentation:
+
+            Construct a frame widget with the parent MASTER.
+
+            Valid resource names: background, bd, bg, borderwidth, class, colormap, container, cursor, 
+            
+            height, highlightbackground, highlightcolor, highlightthickness, relief, takefocus, visual, width.
+        """
         super().__init__(parent, *args, **kwargs)
 
         ttk.Button(self, text=text, style='Custom.Toolbutton', command=command, width=kwargs["width"] if "width" in kwargs else 15).pack(side='left')
@@ -609,6 +665,29 @@ class ThreadFrame(tk.Frame):
 class VoiceChatFrame(tk.Frame):
 
     def __init__(self, parent, text : str ="", *args, **kwargs):
+        """
+        An object that represents a voice chat.
+        This should only be attached to ToggleFrame objects.
+
+        Parameters
+        ----------
+        parent : ToggleFrame
+            The category that this voice chat is a part of
+        
+        text : str
+            The name of voice chat
+        
+        args/kwargs
+            Any values that will modify the Frame object's attributes.
+            Below is the documentation:
+
+            Construct a frame widget with the parent MASTER.
+
+            Valid resource names: background, bd, bg, borderwidth, class, colormap, container, cursor, 
+            
+            height, highlightbackground, highlightcolor, highlightthickness, relief, takefocus, visual, width.
+        """
+
         super().__init__(parent, *args, **kwargs)
 
         self.children_list = list()
@@ -616,49 +695,51 @@ class VoiceChatFrame(tk.Frame):
 
         ttk.Button(self, text=text, style='Custom.Toolbutton', width=kwargs["width"] if "width" in kwargs else 15, command=None).grid(row=0, column=0, sticky='w')
 
-        #self.user_in_call_label = tk.Label(self, background="#31343b", height=1)
-        #self.user_in_call_label.grid(row=1, column=0, sticky='w')
-        #self.user_in_call_label.grid_propagate(0)
-    
-    def add_user_to_call(self, user: User):
-        user_pf_label = tk.Label(master=self.user_in_call_label, background="#31343b", image=user.get_profile_picture())
-        user_pf_label.pack(side='left')
-        self.children_list.append((user_pf_label, user))
-        
-
-    def remove_user_from_call(self, user: User):
-        for child in self.children_list:
-            if child[1].get_username() == user.get_username():
-                child[0].pack_forget()
-                self.children_list.remove(child)
-
-                break
-        
-
-    def button_pressed(self):
-        if self.is_in_chat:
-            self.remove_user_from_call(User("templates/Test_PF1.png", "User", 'ONLINE'))
-            self.is_in_chat = False
-
-        else:
-            self.add_user_to_call(User("templates/Test_PF1.png", "User", 'ONLINE'))
-            self.is_in_chat = True
-
 class ChannelFrame(ToggledFrame):
 
     def __init__(self, parent, text="", *args, **kwargs):
+        """
+        An object that represents a channel.
+        This should only be attached to ToggleFrame.
+
+        Parameters
+        ----------
+        parent : ToggleFrame
+            The category that this channel is a part of.
+        
+        text : str
+            The name of channel
+        
+        command : function
+            The function that will be used when the channel it clicked on.
+        
+        args/kwargs
+            Any values that will modify the Frame object's attributes.
+            Below is the documentation:
+
+            Construct a frame widget with the parent MASTER.
+
+            Valid resource names: background, bd, bg, borderwidth, class, colormap, container, cursor, 
+            
+            height, highlightbackground, highlightcolor, highlightthickness, relief, takefocus, visual, width.
+        """
         super().__init__(parent, text, *args, **kwargs)
 
         # Convert the label into a button
         self.frame_label.pack_forget()
-        self.frame_label = ttk.Button(self.title_frame, text=text, style='Custom.Toolbutton', command=self.printTest)
+        self.frame_label = ttk.Button(self.title_frame, text=text, style='Custom.Toolbutton', command=None)
         self.frame_label.pack(side='left', fill='x', expand=1)
-    
-    def printTest(self):
-        print(self.frame_label)
 
     def add_children(self, children: ThreadFrame | list[ThreadFrame]):
-        
+        """
+        Adds a ThreadFrame object or many ThreadFrame objects to the inside
+        of the ChannelFrame. The function will not add objects that aren't ThreadFrames.
+
+        Parameters
+        ----------
+        children : ThreadFrame | list[ThreadFrame]
+            The threads that will be attached to the channel.
+        """
         if isinstance(children, list):
             for child in children:
                 if isinstance(child, ThreadFrame):

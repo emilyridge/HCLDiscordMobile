@@ -1,7 +1,6 @@
 import tkinter as tk
-from tkinter import messagebox, font, ttk, filedialog
-from PIL import Image, ImageTk, ImageOps, ImageDraw
-from models import Message
+from tkinter import font, filedialog
+from PIL import Image, ImageTk
 import os
 import datetime
 from uiobjects import *
@@ -9,7 +8,6 @@ from uiobjects import *
 WIDTH_IPHONE_15_MAX = 1290
 HEIGHT_IPHONE_15_MAX = 2796
 
-# @@ -7,35 +8,100 @@ HEIGHT_IPHONE_15_MAX = 2796
 WIDTH_SCREEN = 419
 HEIGHT_SCREEN = int(HEIGHT_IPHONE_15_MAX/4)
 ROOT = os.getcwd()
@@ -65,7 +63,6 @@ def createChannelFrame():
     channelFrame = tk.Frame(chatScreenFrame, highlightthickness=3, highlightbackground="black")
     channelFrame.grid(row=0, column=0)
 
-  # After some testing, a width of 17 allows the label to span the screen without making the window too much bigger
     channelName = tk.Label(channelFrame, text= "# Channel", font=("Arial", 25), width=21, foreground="White", background="#31343b")
     channelName.grid(row=0, column=1)
 
@@ -106,6 +103,7 @@ def createChatFrame():
     empty_message_buffer.grid(row=0, column=0, sticky='sw')
     
 
+# Check for when the entry box is clicked on
 def on_entry_click(event):
     global entry_has_focus
     entry_has_focus = True
@@ -113,6 +111,7 @@ def on_entry_click(event):
         entry.delete(0, tk.END)
         entry.config(foreground="white")
 
+# Check for when the entry box is clicked off of
 def on_focus_out(event):
     global entry_has_focus
     entry_has_focus = False
@@ -144,7 +143,7 @@ def createMessageFrame():
     entry = tk.Entry(messageFrame, bg="#202427", fg="gray", font=entry_font, width=25)
     entry_has_focus = False
 
-
+    # Add temporary text prompt in the entry box
     entry.insert(0, "Message #Channel")
     entry.grid(row=1, column=2, padx=5, pady=5)
 
@@ -172,6 +171,7 @@ def createMessageFrame():
     file_button = tk.Button(messageFrame, image=file_add_img, command=attach_file, activebackground="#31343b", background="#31343b")
     file_button.grid(row=1, column=1, padx=5, pady=5)
 
+    # Update the send button's visiblity
     update_send_button_visibility()
 
 def send_message():
@@ -185,11 +185,17 @@ def send_message():
         new_chat_message.grid(row=len(message_list), column=0)
         empty_message_buffer.configure(height=empty_message_buffer.winfo_reqheight() - new_chat_message.winfo_reqheight())
 
+        # If the reply button is toggled on, 
+        # then ensure that this button can be replied to
         new_chat_message.reply_button_pressed(reply_button.pressed)
         
         # Clear the entry widget after sending the message
         entry.delete(0, tk.END)
 
+        # In case the user uses the send button, this will update the send button
+        update_send_button_visibility()
+
+        # Toggle reply mode if the button is pressed and the user replied to a message.
         if reply_button.pressed and reply_button.message:
             reply_mode_toggle()
 
@@ -198,6 +204,7 @@ def check_enter_input(event):
     if entry_has_focus:
         send_message()
 
+# This function is called when the reply button is clicked
 def reply_mode_toggle():
     reply_button.pressed = not reply_button.pressed
 
@@ -222,6 +229,7 @@ def reply_preview_clear():
         reply_frame.configure(highlightthickness=0)
         chatFrame.configure_height(height=HEIGHT_SCREEN-110)
 
+# This is called when in reply mode and when a message is clicked
 def reply_message_clicked(message):
     global reply_pf
     global reply_pf_file
@@ -231,26 +239,32 @@ def reply_message_clicked(message):
 
     reply_button.message = message
 
+    # Clear the current reply preview, if applicable
     reply_preview_clear()
 
-    #reply_frame.configure(highlightthickness=1, highlightbackground="Black")
+    # Add room for the reply frame
     chatFrame.configure_height(height=HEIGHT_SCREEN-135)
 
+    # This buffer helps center the reply message
     reply_buffer = tk.Label(reply_frame, width=3, bg="#31343b")
     reply_buffer.grid(row=0, column=0)
 
+    # Add reply user's profile picture
     reply_pf_file = message.user.get_profile_picture(20)
     reply_pf = tk.Label(reply_frame, bg="#31343b", anchor='w', image=reply_pf_file)
     reply_pf.grid(row=0, column=1)
 
+    # Add reply user's username
     reply_username = tk.Label(reply_frame, bg="#31343b", fg="White", text=message.user.get_username(), anchor='w', justify='left', font=("Arial", 10))
     reply_username.grid(row=0, column=2)
 
     message_str = message.message
 
+    # If the message is too long, shorten it and add an ellipse
     if len(message.user.get_username()) + len(message_str) > 55:
         message_str = message_str[0:55] + "..."
 
+    # Add reply message
     reply_message = tk.Label(reply_frame, bg="#31343b", foreground="White", text=message_str, anchor='w', justify='left', font=("Arial", 8))
     reply_message.grid(row=0, column=3)
 
@@ -261,7 +275,7 @@ def attach_file():
     if not temp is None:
         temp.close()
 
-
+# This is called when the entry is edited.
 def update_send_button_visibility(event=None):
     default_message = "Message #Channel"
     if entry.get() and entry.get() != default_message:
@@ -313,20 +327,26 @@ def channel_screen_users():
     user_frame = ScrollableFrame(channelScreenFrame, height=HEIGHT_SCREEN-100, width=WIDTH_SCREEN)
     user_frame.grid(row=1, column=0, sticky='e')
 
+    # Add a RoleFrame
     role_frame1 = RoleFrame("Online", mention_button_pressed, master=user_frame.interior, width=53)
     role_frame1.grid(row=0, column=0, sticky='w')
 
+    # Add users to the RoleFrame
     user1 = User("templates/Test_PF1.png", "GoofyGoober", "ONLINE")
     role_frame1.add_users(user1)
     user2 = User("templates/Test_PF1.png", "GoofyGuber", "ONLINE", "Playing Terraria")
     role_frame1.add_users(user2)
 
+    # Add a second RoleFrame
     role_frame2 = RoleFrame("Admins", mention_button_pressed, role_color="Pink", master=user_frame.interior)
     role_frame2.grid(row=1, column=0, sticky='w')
 
+    # Add a second group of users to the second RoleFrame
     testList = [User("templates/Test_PF1.png", "CyaMan", "OFFLINE"), User("templates/Test_PF1.png", "C@tLands", "OFFLINE"), User("templates/Test_PF1.png", "TestYall", "IDLE")]
     role_frame2.add_users(testList)
 
+# These functions are here as placeholders,
+# given more time these functions would be fleshed out.
 def pins_button_pressed():
     pass
 
@@ -335,6 +355,7 @@ def threads_button_pressed():
 
 def notifs_button_pressed():
     pass
+# ---------------------------------------------------
 
 def mention_button_pressed(user):
 
@@ -363,13 +384,12 @@ def init_server_screen():
     user_information()
 
 def server_list():
+    # Construct the server list frame
     server_list_frame = tk.Frame(serverScreenFrame, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-75, width=int(WIDTH_SCREEN/3)-40)
     server_list_frame.grid(row=0, column=0, sticky="n")
     server_list_scroll = ScrollableFrame(server_list_frame, height=HEIGHT_SCREEN-81, width=int(WIDTH_SCREEN/3)-40, background="#31343b")
     server_list_scroll.grid(row=0, column=0)
     server_list_scroll.grid_propagate(0)
-
-    # Add frame data structures that act like servers
     
     # This is a bunch of test servers.
     for i in range(17):
@@ -411,10 +431,12 @@ def friends_list():
     friends_list_scroll.grid(row=5, column=0, columnspan=2, sticky="e")
     friends_list_scroll.grid_propagate(0)
 
+    # Add users in friends list
     user1 = UserFrame(User("templates/Test_PF1.png", "GoofyGoober", "ONLINE"), master=friends_list_scroll.interior, width=12)
     user1.grid(row=0, column=0)
 
 def server_channel_list():
+    # Initialize the server channel frame
     channel_list_frame = tk.Frame(serverScreenFrame, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN, width=int(WIDTH_SCREEN/3)+20)
     channel_list_frame.grid(row=0, column=2, rowspan=2, sticky="n")
     
@@ -427,18 +449,20 @@ def server_channel_list():
     event_button_label = tk.Label(channel_list_frame, text="Events", foreground="White", background="#31343b", font=("Arial", 15))
     event_button_label.grid(row=1, column=1)
 
-    # Add frame data structures that act as channels
     channel_list_scroll = ScrollableFrame(channel_list_frame, height=HEIGHT_SCREEN-76, width=int(WIDTH_SCREEN/3))
     channel_list_scroll.grid(row=2, column=0, columnspan=3, sticky='e')
     channel_list_scroll.grid_propagate(0)
 
+    # Adding a category and some channels.
     category_frame = ToggledFrame(channel_list_scroll.interior, text="Category 1")
     category_frame.grid(row=0, column=0, sticky='w')
     channel_frame1 = ChannelFrame(category_frame.sub_frame, text="Channel")
     category_frame.add_children([channel_frame1, ChannelFrame(category_frame.sub_frame, text="Channel2"), ChannelFrame(category_frame.sub_frame, text="Goober-Zone")])
 
+    # Adding a thread to the Channel channel
     channel_frame1.add_children(ThreadFrame(channel_frame1.sub_frame, "Goober"))
 
+    # Adding a VoiceChatFrame to the list.
     voice_chat1 = VoiceChatFrame(category_frame.sub_frame, "Voice Chat")
     category_frame.add_children(voice_chat1)
 
@@ -472,25 +496,39 @@ def user_information():
     pf_picture = tk.Label(user_info_frame, image=test_img, background="#31343b")
     pf_picture.grid(row=0, column=0, rowspan=3, pady=15)
 
+# Changes the look of the mute button
 def mute_button_pressed():
     
-    if mute_button.pressed:
+    if mute_button.pressed or deafen_button.pressed:
         mute_button.pressed = False
         mute_button.configure(image=mute_button_img)
-    
+        
+        # If the mute button is pressed when the deafen button is already depressed,
+        # then unmute and undeafen.
+        if deafen_button.pressed:
+            deafen_button_pressed()
+
     else:
         mute_button.pressed = True
         mute_button.configure(image=depressed_mute_button_img)
 
+# Changes the look of the deafen button
 def deafen_button_pressed():
     
     if deafen_button.pressed:
         deafen_button.pressed = False
         deafen_button.configure(image=deafen_button_img)
+
+        # If the user wasn't muted before deafening, then unmute
+        if not mute_button.pressed:
+            mute_button.configure(image=mute_button_img)
     
     else:
         deafen_button.pressed = True
         deafen_button.configure(image=depressed_deafen_button_img)
+
+        # When deafened, the user is also muted
+        mute_button.configure(image=depressed_mute_button_img)
 
 
 # Functions to change display (resembling swipe)
@@ -551,18 +589,20 @@ def initialize_button_images():
 
 
 # --------------------------------------
-
+# Initialize the app
 app = tk.Tk()
 app.title("Discord Mobile Demo")
 
+# Set bounds for app
 app.minsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
 app.maxsize(width=WIDTH_SCREEN, height=HEIGHT_SCREEN)
-
 app.configure(background="#31343b")
 
+# Initalize the default profile picture
 test_img = Image.open("templates/Test_PF1.png").resize((35,35))
 test_img = ImageTk.PhotoImage(test_img)
 
+# Initalize pictures and frames
 initialize_button_images()
 init_function()
 init_channel_screen()
@@ -577,5 +617,6 @@ app.bind("<F3>", switch_to_channel)
 # Checks to see if the user presses the enter key.
 app.bind("<Return>", check_enter_input)
 
+# Start app
 app.mainloop()
 
