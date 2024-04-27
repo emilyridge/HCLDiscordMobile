@@ -90,8 +90,8 @@ def createChatFrame():
                         + " Imagine this is a super long rant that i'm going on, expressing a deep and possibly slightly controversial thought. Many may not agree, but I do not care as this message is very important to me and, maybe, me alone." 
                         + " But I expect that you will read it in full and reply in kind, otherwise I may get upset with your minimal or lack of response.")
 
-    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGoober", "ONLINE"), timestamp="2024-03-10T11:35:00", message="This is a test.", reply_function=reply_message_clicked, master=chatFrame.interior))
-    message_list.append(UserMessage(user=User("templates/Test_PF1.png", "GoofyGuber", "ONLINE"), timestamp="2024-03-10T11:38:00", message=really_long_test_message, reply_function=reply_message_clicked, master=chatFrame.interior))
+    message_list.append(UserMessage(user=User("templates/Test_PF2.png", "GoofyGoober", "ONLINE"), timestamp="2024-03-10T11:35:00", message="This is a test.", reply_function=reply_message_clicked, master=chatFrame.interior))
+    message_list.append(UserMessage(user=User("templates/Test_PF3.png", "GoofyGuber", "ONLINE"), timestamp="2024-03-10T11:38:00", message=really_long_test_message, reply_function=reply_message_clicked, master=chatFrame.interior))
 
     empty_message_size = 595
 
@@ -332,9 +332,9 @@ def channel_screen_users():
     role_frame1.grid(row=0, column=0, sticky='w')
 
     # Add users to the RoleFrame
-    user1 = User("templates/Test_PF1.png", "GoofyGoober", "ONLINE")
+    user1 = User("templates/Test_PF2.png", "GoofyGoober", "ONLINE")
     role_frame1.add_users(user1)
-    user2 = User("templates/Test_PF1.png", "GoofyGuber", "ONLINE", "Playing Terraria")
+    user2 = User("templates/Test_PF3.png", "GoofyGuber", "ONLINE", "Playing Terraria")
     role_frame1.add_users(user2)
 
     # Add a second RoleFrame
@@ -342,7 +342,7 @@ def channel_screen_users():
     role_frame2.grid(row=1, column=0, sticky='w')
 
     # Add a second group of users to the second RoleFrame
-    testList = [User("templates/Test_PF1.png", "CyaMan", "OFFLINE"), User("templates/Test_PF1.png", "C@tLands", "OFFLINE"), User("templates/Test_PF1.png", "TestYall", "IDLE")]
+    testList = [User("templates/Test_PF4.png", "CyaMan", "OFFLINE"), User("templates/Test_PF5.png", "C@tLands", "OFFLINE"), User("templates/Test_PF6.png", "TestYall", "IDLE")]
     role_frame2.add_users(testList)
 
 # These functions are here as placeholders,
@@ -384,6 +384,15 @@ def init_server_screen():
     user_information()
 
 def server_list():
+
+    def get_server_picture(server_label : tk.Label, picture_str : str):
+        if picture_str == "":
+            picture_str = "templates/Test_PF1.png"
+
+
+        server_label.picture = ImageTk.PhotoImage(Image.open(picture_str).resize((35, 35)))
+        server_label.configure(image=server_label.picture)
+
     # Construct the server list frame
     server_list_frame = tk.Frame(serverScreenFrame, highlightthickness=3, highlightbackground="black", background="#31343b", height=HEIGHT_SCREEN-75, width=int(WIDTH_SCREEN/3)-40)
     server_list_frame.grid(row=0, column=0, sticky="n")
@@ -391,9 +400,16 @@ def server_list():
     server_list_scroll.grid(row=0, column=0)
     server_list_scroll.grid_propagate(0)
     
+    picture_list = ["templates/Server_Picture1.png", "templates/Server_Picture2.png", "templates/Test_PF5.png", "templates/Server_Picture3.png", "templates/Server_Picture4.png", "templates/Test_PF6.png", "templates/Server_Picture6.png", 
+                    "templates/Test_PF4.png", "templates/Server_Picture7.png", "templates/Test_PF1.png", "templates/Server_Picture8.png", "templates/Server_Picture9.png", 
+                    "templates/Server_Picture10.png", "templates/Test_PF3.png", "templates/Server_Picture11.png", "templates/Server_Picture12.png", "templates/Server_Picture13.png", "templates/Test_PF2.png"]
+
     # This is a bunch of test servers.
     for i in range(17):
-        tk.Label(server_list_scroll.interior, image=test_img, background="#31343b").grid(row=i, column=0, pady=5, padx=12)
+        label = tk.Label(server_list_scroll.interior, background="#31343b")
+        get_server_picture(label, picture_list[i])
+        label.grid(row=i, column=0, pady=5, padx=12)
+
 
 
 def friends_list():
@@ -432,8 +448,14 @@ def friends_list():
     friends_list_scroll.grid_propagate(0)
 
     # Add users in friends list
-    user1 = UserFrame(User("templates/Test_PF1.png", "GoofyGoober", "ONLINE"), master=friends_list_scroll.interior, width=12)
-    user1.grid(row=0, column=0)
+    users = [User("templates/Test_PF2.png", "GoofyGoober", "ONLINE"), User("templates/Test_PF3.png", "GoofyGuber", "ONLINE", user_status_message="Playing Terraria"), User("templates/Test_PF4.png", "CyaMan", "ONLINE"),
+             User("templates/Test_PF5.png", "C@tLands", "ONLINE"), User("templates/Test_PF6.png", "TestYall", "ONLINE"), User("templates/Server_Picture2.png", "Ramsay", "ONLINE", user_status_message="I'm not Gordon!"),
+             User("templates/Server_Picture8.png", "WariosBike", "ONLINE"), User("templates/Server_Picture5.png", "SndwchDrvng", "ONLINE"), User("templates/Server_Picture13.png", "Spoons", "ONLINE"),
+             User("templates/Server_Picture1.png", "MushrumManic", "ONLINE"), User("templates/Server_Picture6.png", "CoolKat29", "ONLINE"), User("templates/Server_Picture9.png", "UFrumFutur", "ONLINE", user_status_message="OUTATIME")]
+
+    for i in range(len(users)):
+        user1 = UserFrame(users[i], master=friends_list_scroll.interior, width=12)
+        user1.grid(row=i, column=0)
 
 def server_channel_list():
     # Initialize the server channel frame
@@ -465,6 +487,29 @@ def server_channel_list():
     # Adding a VoiceChatFrame to the list.
     voice_chat1 = VoiceChatFrame(category_frame.sub_frame, "Voice Chat")
     category_frame.add_children(voice_chat1)
+
+    # Adding a second category
+    category_frame2 = ToggledFrame(channel_list_scroll.interior, text="General Chat")
+    category_frame2.grid(row=1, column=0, sticky='w')
+    category_frame2.add_children([ChannelFrame(category_frame2.sub_frame, text="Debates"), ChannelFrame(category_frame2.sub_frame, text="About-Cats"), ChannelFrame(category_frame2.sub_frame, text="general")])
+
+    # Adding a third category
+    category_frame3 = ToggledFrame(channel_list_scroll.interior, text="Voice Chats")
+    category_frame3.grid(row=2, column=0, sticky='w')
+    category_frame3.add_children([VoiceChatFrame(category_frame3.sub_frame, text="General VC"), VoiceChatFrame(category_frame3.sub_frame, text="Chaos Chat"), VoiceChatFrame(category_frame3.sub_frame, text="idle"),
+                                  VoiceChatFrame(category_frame3.sub_frame, text="Midnight Watch"), VoiceChatFrame(category_frame3.sub_frame, text="Dogfighterz")])
+    
+    # Adding a fourth category
+    category_frame4 = ToggledFrame(channel_list_scroll.interior, text="Beeg Category")
+    category_frame4.grid(row=3, column=0, sticky='w')
+    category_frame4.add_children([ChannelFrame(category_frame4.sub_frame, text="Funni-Dogs"), ChannelFrame(category_frame4.sub_frame, text="OCs"), ChannelFrame(category_frame4.sub_frame, text="Memes"),
+                                  ChannelFrame(category_frame4.sub_frame, text="Frogs"), ChannelFrame(category_frame4.sub_frame, text="Castle-Designs"),
+                                  ChannelFrame(category_frame4.sub_frame, text="Lousy-Devils"), ChannelFrame(category_frame4.sub_frame, text="Failure-Cars"),
+                                  ChannelFrame(category_frame4.sub_frame, text="Desert-Bus"), ChannelFrame(category_frame4.sub_frame, text="MM2-Levels"),
+                                  ChannelFrame(category_frame4.sub_frame, text="Jon Kirby"), ChannelFrame(category_frame4.sub_frame, text="Dont-Sue"),
+                                  VoiceChatFrame(category_frame4.sub_frame, text="Chatterz"), VoiceChatFrame(category_frame4.sub_frame, text="Logs")])
+
+
 
 
 def user_information():
